@@ -21,8 +21,9 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE_MB: int = 5
     UPLOAD_DIR: str = "./uploads"
 
-    FRONTEND_URL: str = "http://localhost:5173"
-
+   # FRONTEND_URL: str = "http://localhost:5173"
+    FRONTEND_URL: str = "https://smartfarmai-amber.vercel.app"
+    
     GEMINI_API_KEY: str = ""
     CHAT_DEMO_MODE: bool = True
 
