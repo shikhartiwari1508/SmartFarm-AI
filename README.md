@@ -312,7 +312,7 @@ CMP Degree College
 
 * GitHub: [@shikhartiwari1508](https://github.com/shikhartiwari1508)
 * Portfolio: [Shikhar Tiwari Portfolio](https://shikhartiwari1508.github.io/Shikhar_Tiwari-Portfolio/)
-
+* Project link: [SmartFarm-AI](https://smartfarmai-amber.vercel.app/)
 ---
 
 ## 📄 License
