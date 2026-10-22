@@ -303,10 +303,10 @@ SmartFarm-AI aims to:
 
 ## 👨‍💻 Developer
 
-**Shikhar Tiwari**
+**Mr. Shikhar Tiwari**
 
 BCA-MCA Data Science
-CMP Degree College
+University of Allahabad
 
 ### Connect
 
