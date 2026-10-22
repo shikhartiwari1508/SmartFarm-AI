@@ -306,6 +306,7 @@ SmartFarm-AI aims to:
 **Mr. Shikhar Tiwari**
 
 BCA-MCA Data Science
+
 University of Allahabad
 
 ### Connect
