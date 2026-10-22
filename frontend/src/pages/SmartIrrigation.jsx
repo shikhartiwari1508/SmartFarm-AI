@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext'
 import { useState, useEffect } from 'react'
 import { Droplets, Loader2, CheckCircle, XCircle, AlertTriangle, Clock, Leaf, Thermometer, CloudRain, Wind, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -62,6 +63,7 @@ function SliderInput({ label, name, value, min, max, unit, icon: Icon, color, on
 }
 
 export default function SmartIrrigation() {
+  const { t, language } = useLanguage()
   const [form, setForm] = useState(INITIAL_FORM)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
@@ -105,15 +107,15 @@ export default function SmartIrrigation() {
           <Droplets className="w-5 h-5 text-blue-400" />
         </div>
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Smart Irrigation</h1>
-          <p className="text-gray-400 text-sm">AI-powered water requirement recommendation for your crops</p>
+          <h1 className="font-display text-2xl font-bold text-white">{t('Smart Irrigation', 'स्मार्ट सिंचाई')}</h1>
+          <p className="text-gray-400 text-sm">{t('AI-powered water requirement recommendation for your crops', 'आपकी फसलों के लिए AI आधारित पानी की आवश्यकता की सलाह')}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Form */}
         <form onSubmit={handleSubmit} className="glass-card p-6 space-y-5">
-          <h2 className="font-semibold text-gray-200 text-sm uppercase tracking-wider">Field Conditions</h2>
+          <h2 className="font-semibold text-gray-200 text-sm uppercase tracking-wider">{t('Field Conditions', 'खेत की स्थिति')}</h2>
 
           {/* Sliders */}
           <SliderInput label="Soil Moisture" name="soil_moisture" value={form.soil_moisture}
@@ -136,7 +138,7 @@ export default function SmartIrrigation() {
               </select>
             </div>
             <div>
-              <label className="input-label">Growth Stage</label>
+              <label className="input-label">{t('Growth Stage', 'विकास की अवस्था')}</label>
               <select name="growth_stage" value={form.growth_stage} onChange={handleChange} className="input-field">
                 {stages.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -144,7 +146,7 @@ export default function SmartIrrigation() {
           </div>
 
           <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
-            {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Calculating...</> : <><Droplets className="w-4 h-4" />Get Irrigation Recommendation</>}
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin" />{t('Calculating...', 'गणना हो रही है...')}</> : <><Droplets className="w-4 h-4" />{t('Get Irrigation Recommendation', 'सिंचाई की सलाह लें')}</>}
           </button>
         </form>
 
@@ -155,14 +157,14 @@ export default function SmartIrrigation() {
               <div className="w-20 h-20 bg-blue-900/20 border border-blue-700/20 rounded-full flex items-center justify-center">
                 <Droplets className="w-10 h-10 text-blue-600" />
               </div>
-              <p className="text-gray-400">Set your field conditions and get an instant irrigation recommendation.</p>
+              <p className="text-gray-400">{t('Set your field conditions and get an instant irrigation recommendation.', 'खेत की स्थिति भरें और तुरंत सिंचाई की सलाह पाएँ।')}</p>
             </div>
           )}
 
           {loading && (
             <div className="glass-card p-8 text-center h-full flex flex-col items-center justify-center gap-4">
               <Loader2 className="w-10 h-10 text-blue-400 animate-spin" />
-              <p className="text-white">Calculating water requirements...</p>
+              <p className="text-white">{t('Calculating water requirements...', 'पानी की आवश्यकता की गणना हो रही है...')}</p>
             </div>
           )}
 
@@ -187,11 +189,11 @@ export default function SmartIrrigation() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="glass-card p-4 text-center">
                     <div className="text-3xl font-display font-bold text-blue-400">{result.recommended_amount_mm}</div>
-                    <div className="text-xs text-gray-400 mt-1">mm Water Required</div>
+                    <div className="text-xs text-gray-400 mt-1">{t('mm Water Required', 'मिमी पानी आवश्यक')}</div>
                   </div>
                   <div className="glass-card p-4 text-center">
                     <div className="text-3xl font-display font-bold text-orange-400">{result.next_check_hours}h</div>
-                    <div className="text-xs text-gray-400 mt-1">Next Check</div>
+                    <div className="text-xs text-gray-400 mt-1">{t('Next Check', 'अगली जाँच')}</div>
                   </div>
                 </div>
               )}
@@ -200,7 +202,7 @@ export default function SmartIrrigation() {
               <div className="glass-card p-4 flex items-start gap-3">
                 <Droplets className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-sm font-medium text-gray-200 mb-1">Recommended Method</div>
+                  <div className="text-sm font-medium text-gray-200 mb-1">{t('Recommended Method', 'सुझाया गया तरीका')}</div>
                   <div className="text-sm text-gray-400">{result.method_suggestion}</div>
                 </div>
               </div>
@@ -209,8 +211,8 @@ export default function SmartIrrigation() {
               <div className="glass-card p-4 flex items-start gap-3">
                 <Clock className="w-5 h-5 text-primary-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-sm font-medium text-gray-200 mb-1">Next Moisture Check</div>
-                  <div className="text-sm text-gray-400">Check soil moisture again in <span className="text-primary-400 font-semibold">{result.next_check_hours} hours</span></div>
+                  <div className="text-sm font-medium text-gray-200 mb-1">{t('Next Moisture Check', 'मिट्टी की नमी की अगली जाँच')}</div>
+                  <div className="text-sm text-gray-400">{t('Check soil moisture again in', 'मिट्टी की नमी दोबारा जाँचें,')} <span className="text-primary-400 font-semibold">{result.next_check_hours} hours</span></div>
                 </div>
               </div>
 
@@ -218,7 +220,7 @@ export default function SmartIrrigation() {
               <div className="bg-primary-900/20 border border-primary-700/30 rounded-xl p-4 flex items-start gap-3">
                 <span className="text-lg">💡</span>
                 <div>
-                  <div className="text-sm font-medium text-primary-300 mb-1">Water Saving Tip</div>
+                  <div className="text-sm font-medium text-primary-300 mb-1">{t('Water Saving Tip', 'पानी बचाने की सलाह')}</div>
                   <div className="text-sm text-gray-300">{result.water_saving_tip}</div>
                 </div>
               </div>

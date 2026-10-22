@@ -139,6 +139,7 @@ class WeatherResponse(BaseModel):
 class ChatMessage(BaseModel):
     message: str = Field(..., min_length=1, max_length=1000)
     session_id: Optional[str] = Field(None)
+    language: str = Field("hi", pattern="^(hi|en)$", description="Response language: hi or en")
 
     class Config:
         json_schema_extra = {"example": {"message": "Which crop should I grow in Kharif season?", "session_id": "user-123"}}

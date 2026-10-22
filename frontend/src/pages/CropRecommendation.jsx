@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext'
 import { useState } from 'react'
 import { Sprout, Info, Loader2, CheckCircle, Thermometer, Droplets, CloudRain, AlertTriangle, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -5,6 +6,7 @@ import { recommendCrop } from '../services/api'
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts'
 
 export default function CropRecommendation() {
+  const { t, language } = useLanguage()
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [form, setForm] = useState({
@@ -33,9 +35,9 @@ export default function CropRecommendation() {
     try {
       const res = await recommendCrop(form)
       setResult(res)
-      toast.success("Recommendation Ready!")
+      toast.success(t('Recommendation Ready!', 'फसल की सलाह तैयार है!'))
     } catch (err) {
-      toast.error(err.message || "Failed to get recommendation")
+      toast.error(err.message || t('Failed to get recommendation', 'फसल की सलाह नहीं मिल सकी'))
     } finally {
       setLoading(false)
     }
@@ -57,8 +59,8 @@ export default function CropRecommendation() {
           <Sprout className="w-5 h-5 text-green-400" />
         </div>
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Crop Recommendation</h1>
-          <p className="text-gray-400 text-sm">AI analysis to find the best crop for your soil and climate</p>
+          <h1 className="font-display text-2xl font-bold text-white">{t('Crop Recommendation', 'फसल की सलाह')}</h1>
+          <p className="text-gray-400 text-sm">{t('AI analysis to find the best crop for your soil and climate', 'आपकी मिट्टी और मौसम के अनुसार बेहतर फसल चुनने के लिए AI विश्लेषण')}</p>
         </div>
       </div>
 
@@ -67,41 +69,41 @@ export default function CropRecommendation() {
         <form onSubmit={handleSubmit} className="glass-card p-6 space-y-5">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
-              <label className="input-label">Nitrogen (N)</label>
+              <label className="input-label">{t('Nitrogen (N)', 'नाइट्रोजन (N)')}</label>
               <input type="number" name="nitrogen" value={form.nitrogen} onChange={handleChange} className="input-field" required min="0" max="200" />
             </div>
             <div>
-              <label className="input-label">Phosphorus (P)</label>
+              <label className="input-label">{t('Phosphorus (P)', 'फॉस्फोरस (P)')}</label>
               <input type="number" name="phosphorus" value={form.phosphorus} onChange={handleChange} className="input-field" required min="0" max="200" />
             </div>
             <div>
-              <label className="input-label">Potassium (K)</label>
+              <label className="input-label">{t('Potassium (K)', 'पोटैशियम (K)')}</label>
               <input type="number" name="potassium" value={form.potassium} onChange={handleChange} className="input-field" required min="0" max="200" />
             </div>
             <div>
-              <label className="input-label">Soil pH</label>
+              <label className="input-label">{t('Soil pH', 'मिट्टी का pH')}</label>
               <input type="number" name="ph" value={form.ph} onChange={handleChange} className="input-field" step="0.1" required min="0" max="14" />
             </div>
             <div>
-              <label className="input-label">Temp (°C)</label>
+              <label className="input-label">{t('Temp (°C)', 'तापमान (°C)')}</label>
               <input type="number" name="temperature" value={form.temperature} onChange={handleChange} className="input-field" required />
             </div>
             <div>
-              <label className="input-label">Humidity (%)</label>
+              <label className="input-label">{t('Humidity (%)', 'नमी (%)')}</label>
               <input type="number" name="humidity" value={form.humidity} onChange={handleChange} className="input-field" required min="0" max="100" />
             </div>
             <div>
-              <label className="input-label">Rainfall (mm)</label>
+              <label className="input-label">{t('Rainfall (mm)', 'वर्षा (मिमी)')}</label>
               <input type="number" name="rainfall" value={form.rainfall} onChange={handleChange} className="input-field" required />
             </div>
             <div>
-              <label className="input-label">Season</label>
+              <label className="input-label">{t('Season', 'मौसम/फसल सीजन')}</label>
               <select name="season" value={form.season} onChange={handleChange} className="input-field">
-                <option>Kharif</option><option>Rabi</option><option>Zaid</option>
+                <option>{t('Kharif', 'खरीफ')}</option><option>{t('Rabi', 'रबी')}</option><option>{t('Zaid', 'जायद')}</option>
               </select>
             </div>
             <div>
-              <label className="input-label">Location</label>
+              <label className="input-label">{t('Location', 'स्थान')}</label>
               <input type="text" name="location" value={form.location} onChange={handleChange} className="input-field" />
             </div>
           </div>
@@ -115,20 +117,20 @@ export default function CropRecommendation() {
         <div>
           {!result && !loading && (
              <div className="glass-card p-8 h-full flex items-center justify-center text-gray-400 text-center">
-               Enter your farm details to get AI crop recommendations based on agronomic data.
+               {t('Enter your farm details to get AI crop recommendations based on agronomic data.', 'मिट्टी और खेती के डेटा के आधार पर फसल की सलाह पाने के लिए खेत की जानकारी भरें।')}
              </div>
           )}
           {loading && (
              <div className="glass-card p-8 h-full flex flex-col items-center justify-center">
                <Loader2 className="w-10 h-10 text-primary-400 animate-spin mb-4" />
-               <p className="text-white">Analyzing soil and climate data...</p>
+               <p className="text-white">{t('Analyzing soil and climate data...', 'मिट्टी और मौसम के डेटा का विश्लेषण हो रहा है...')}</p>
              </div>
           )}
           {result && !loading && (
             <div className="space-y-4 animate-slide-up">
               <div className="glass-card p-6 border border-primary-500/30 bg-primary-900/10">
-                {result.is_demo && <div className="demo-badge mb-3"><AlertTriangle className="w-3 h-3" /> Demo Mode Active</div>}
-                <div className="text-gray-400 text-sm mb-1">Highly Recommended Crop</div>
+                {result.is_demo && <div className="demo-badge mb-3"><AlertTriangle className="w-3 h-3" /> {t('Demo Mode Active', 'डेमो मोड चालू है')}</div>}
+                <div className="text-gray-400 text-sm mb-1">{t('Highly Recommended Crop', 'सबसे उपयुक्त फसल')}</div>
                 <div className="text-5xl font-display font-bold text-gradient">{result.recommended_crop}</div>
                 <div className="mt-4 flex items-center gap-4">
                   <div className="bg-primary-900/50 px-3 py-1 rounded-full text-primary-300 text-sm font-semibold">
@@ -140,13 +142,13 @@ export default function CropRecommendation() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="glass-card p-4">
-                  <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2"><CheckCircle className="w-4 h-4 text-primary-400"/> Tips</h3>
+                  <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2"><CheckCircle className="w-4 h-4 text-primary-400"/> {t('Tips', 'सलाह')}</h3>
                   <ul className="text-xs text-gray-400 space-y-1">
                     {result.farming_tips.map((t, i) => <li key={i}>• {t}</li>)}
                   </ul>
                 </div>
                 <div className="glass-card p-4">
-                  <h3 className="text-sm font-semibold text-white mb-2">Current vs Optimal</h3>
+                  <h3 className="text-sm font-semibold text-white mb-2">{t('Current vs Optimal', 'वर्तमान बनाम आदर्श स्थिति')}</h3>
                   <div className="h-32">
                     <ResponsiveContainer width="100%" height="100%">
                       <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
@@ -161,7 +163,7 @@ export default function CropRecommendation() {
 
               {result.alternative_crops?.length > 0 && (
                 <div className="glass-card p-4">
-                  <h3 className="text-sm font-semibold text-white mb-3">Alternatives</h3>
+                  <h3 className="text-sm font-semibold text-white mb-3">{t('Alternatives', 'वैकल्पिक फसलें')}</h3>
                   <div className="grid grid-cols-3 gap-2">
                     {result.alternative_crops.map(c => (
                       <div key={c.crop} className="bg-gray-800/50 p-2 rounded-lg text-center border border-gray-700">
@@ -174,7 +176,7 @@ export default function CropRecommendation() {
               )}
               
               <button onClick={() => setResult(null)} className="btn-secondary w-full">
-                <RefreshCw className="w-4 h-4" /> Reset
+                <RefreshCw className="w-4 h-4" /> {t('Reset', 'रीसेट')}
               </button>
             </div>
           )}

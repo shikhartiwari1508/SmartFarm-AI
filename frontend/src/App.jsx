@@ -8,9 +8,11 @@ import WeatherDashboard from './pages/WeatherDashboard'
 import ChatAssistant from './pages/ChatAssistant'
 import AIInsights from './pages/AIInsights'
 import Layout from './components/Layout'
+import { LanguageProvider } from './context/LanguageContext'
 
 export default function App() {
   return (
+    <LanguageProvider>
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route element={<Layout />}>
@@ -23,5 +25,6 @@ export default function App() {
         <Route path="/insights" element={<AIInsights />} />
       </Route>
     </Routes>
+    </LanguageProvider>
   )
 }

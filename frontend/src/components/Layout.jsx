@@ -6,18 +6,21 @@ import {
   Leaf, LogOut
 } from 'lucide-react'
 import clsx from 'clsx'
+import { useLanguage } from '../context/LanguageContext'
+import LanguageSwitcher from './LanguageSwitcher'
 
 const NAV_ITEMS = [
-  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', color: 'text-emerald-400' },
-  { path: '/crops', icon: Sprout, label: 'Crop Recommendation', color: 'text-green-400' },
-  { path: '/disease', icon: Bug, label: 'Disease Detection', color: 'text-red-400' },
-  { path: '/irrigation', icon: Droplets, label: 'Smart Irrigation', color: 'text-blue-400' },
-  { path: '/weather', icon: Cloud, label: 'Weather Intelligence', color: 'text-sky-400' },
-  { path: '/insights', icon: Lightbulb, label: 'AI Insights', color: 'text-yellow-400' },
-  { path: '/chat', icon: MessageSquare, label: 'SmartFarm Assistant', color: 'text-purple-400' },
+  { path: '/dashboard', icon: LayoutDashboard, labelEn: 'Dashboard', labelHi: 'डैशबोर्ड', color: 'text-emerald-400' },
+  { path: '/crops', icon: Sprout, labelEn: 'Crop Recommendation', labelHi: 'फसल सुझाव', color: 'text-green-400' },
+  { path: '/disease', icon: Bug, labelEn: 'Disease Detection', labelHi: 'रोग पहचान', color: 'text-red-400' },
+  { path: '/irrigation', icon: Droplets, labelEn: 'Smart Irrigation', labelHi: 'स्मार्ट सिंचाई', color: 'text-blue-400' },
+  { path: '/weather', icon: Cloud, labelEn: 'Weather Intelligence', labelHi: 'मौसम जानकारी', color: 'text-sky-400' },
+  { path: '/insights', icon: Lightbulb, labelEn: 'AI Insights', labelHi: 'AI जानकारी', color: 'text-yellow-400' },
+  { path: '/chat', icon: MessageSquare, labelEn: 'SmartFarm Assistant', labelHi: 'स्मार्टफार्म सहायक', color: 'text-purple-400' },
 ]
 
 export default function Layout() {
+  const { t, language } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -44,7 +47,7 @@ export default function Layout() {
             </div>
             <div>
               <div className="font-display font-bold text-white text-sm leading-tight">SmartFarm AI</div>
-              <div className="text-xs text-gray-500">Smart Farming Platform</div>
+              <div className="text-xs text-gray-500">{t('Smart Farming Platform', 'स्मार्ट खेती प्लेटफ़ॉर्म')}</div>
             </div>
           </button>
           <button
@@ -57,7 +60,7 @@ export default function Layout() {
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {NAV_ITEMS.map(({ path, icon: Icon, label, color }) => (
+          {NAV_ITEMS.map(({ path, icon: Icon, labelEn, labelHi, color }) => (
             <NavLink
               key={path}
               to={path}
@@ -72,7 +75,7 @@ export default function Layout() {
               {({ isActive }) => (
                 <>
                   <Icon className={clsx('w-5 h-5 flex-shrink-0', isActive ? 'text-primary-400' : color, 'group-hover:scale-110 transition-transform')} />
-                  <span className="flex-1">{label}</span>
+                  <span className="flex-1">{language === 'hi' ? labelHi : labelEn}</span>
                   {isActive && <ChevronRight className="w-4 h-4 text-primary-500" />}
                 </>
               )}
@@ -83,10 +86,10 @@ export default function Layout() {
         {/* Footer */}
         <div className="p-4 border-t border-gray-800">
           <div className="glass-card p-3 mb-3">
-            <div className="text-xs text-gray-400 mb-1">Demo Mode Active</div>
+            <div className="text-xs text-gray-400 mb-1">{t('Demo Mode Active', 'डेमो मोड चालू है')}</div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
-              <span className="text-xs text-yellow-300">ML models ready for integration</span>
+              <span className="text-xs text-yellow-300">{t('ML models ready for integration', 'ML मॉडल जोड़ने के लिए तैयार हैं')}</span>
             </div>
           </div>
           <button
@@ -94,7 +97,7 @@ export default function Layout() {
             className="flex items-center gap-3 px-4 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800 transition-all w-full text-sm"
           >
             <LogOut className="w-4 h-4" />
-            Back to Home
+            {t('Back to Home', 'मुख्य पृष्ठ पर लौटें')}
           </button>
         </div>
       </aside>
@@ -109,10 +112,10 @@ export default function Layout() {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <div className="flex items-center gap-3 ml-auto">
-            <div className="text-xs text-gray-500 hidden sm:block">Tech Force Hackathon 2026</div>
+          <div className="flex items-center gap-3 ml-auto"><LanguageSwitcher />
+
             <div className="w-2 h-2 rounded-full bg-primary-400 animate-pulse" />
-            <span className="text-xs text-primary-400 font-medium">AI Online</span>
+            <span className="text-xs text-primary-400 font-medium">{t('AI Online', 'AI ऑनलाइन')}</span>
           </div>
         </header>
 

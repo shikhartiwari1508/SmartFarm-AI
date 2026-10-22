@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext'
 import { useState, useEffect } from 'react'
 import { Cloud, Thermometer, Droplets, Wind, Sun, CloudRain, CloudLightning, Loader2, MapPin, RefreshCw, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -31,6 +32,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function WeatherDashboard() {
+  const { t, language } = useLanguage()
   const [location, setLocation] = useState('Maharashtra')
   const [weather, setWeather] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -75,8 +77,8 @@ export default function WeatherDashboard() {
             <Cloud className="w-5 h-5 text-sky-400" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-white">Weather Intelligence</h1>
-            <p className="text-gray-400 text-sm">Real-time weather insights for smart farming decisions</p>
+            <h1 className="font-display text-2xl font-bold text-white">{t('Weather Intelligence', 'मौसम की जानकारी')}</h1>
+            <p className="text-gray-400 text-sm">{t('Real-time weather insights for smart farming decisions', 'बेहतर खेती के निर्णयों के लिए मौसम की ताज़ा जानकारी')}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -111,7 +113,7 @@ export default function WeatherDashboard() {
       {error && !loading && (
         <div className="glass-card p-6 text-center border border-red-700/40">
           <p className="text-red-400">{error}</p>
-          <button onClick={handleRefresh} className="btn-primary mt-4">Retry</button>
+          <button onClick={handleRefresh} className="btn-primary mt-4">{t('Retry', 'फिर कोशिश करें')}</button>
         </div>
       )}
 
@@ -156,14 +158,14 @@ export default function WeatherDashboard() {
           <div className="bg-primary-900/20 border border-primary-700/30 rounded-2xl p-4 flex items-start gap-3">
             <span className="text-2xl">🌾</span>
             <div>
-              <div className="font-semibold text-primary-300 mb-1">Farming Advisory</div>
+              <div className="font-semibold text-primary-300 mb-1">{t('Farming Advisory', 'खेती संबंधी सलाह')}</div>
               <div className="text-gray-300 text-sm">{weather.farming_advisory}</div>
             </div>
           </div>
 
           {/* 5-Day Forecast */}
           <div>
-            <h2 className="font-semibold text-gray-200 mb-3">5-Day Forecast</h2>
+            <h2 className="font-semibold text-gray-200 mb-3">{t('5-Day Forecast', '5 दिनों का पूर्वानुमान')}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               {weather.forecast.map((day, i) => (
                 <div key={i} className="glass-card p-4 text-center hover:border-sky-700/40 transition-colors card-hover">
@@ -181,7 +183,7 @@ export default function WeatherDashboard() {
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="glass-card p-5">
-              <h3 className="font-semibold text-gray-200 mb-4 text-sm">Temperature Trend</h3>
+              <h3 className="font-semibold text-gray-200 mb-4 text-sm">{t('Temperature Trend', 'तापमान का रुझान')}</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <AreaChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -195,7 +197,7 @@ export default function WeatherDashboard() {
             </div>
 
             <div className="glass-card p-5">
-              <h3 className="font-semibold text-gray-200 mb-4 text-sm">Rain Probability (%)</h3>
+              <h3 className="font-semibold text-gray-200 mb-4 text-sm">{t('Rain Probability (%)', 'बारिश की संभावना (%)')}</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <AreaChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />

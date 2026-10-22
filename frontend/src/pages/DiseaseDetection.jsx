@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext'
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Upload, Bug, AlertTriangle, CheckCircle, XCircle, ImageIcon, Loader2, RefreshCw, ShieldAlert, Leaf } from 'lucide-react'
@@ -12,6 +13,7 @@ const SEVERITY_CONFIG = {
 }
 
 export default function DiseaseDetection() {
+  const { t, language } = useLanguage()
   const [file, setFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -71,8 +73,8 @@ export default function DiseaseDetection() {
             <Bug className="w-5 h-5 text-red-400" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-white">Disease Detection</h1>
-            <p className="text-gray-400 text-sm">Upload a crop/leaf photo for AI-powered disease analysis</p>
+            <h1 className="font-display text-2xl font-bold text-white">{t('Disease Detection', 'फसल रोग पहचान')}</h1>
+            <p className="text-gray-400 text-sm">{t('Upload a crop/leaf photo for AI-powered disease analysis', 'AI से रोग की जाँच कराने के लिए फसल या पत्ते की फोटो अपलोड करें')}</p>
           </div>
         </div>
         <div className="demo-badge mt-3">
@@ -103,7 +105,7 @@ export default function DiseaseDetection() {
                   className="max-h-64 mx-auto rounded-xl object-contain shadow-lg"
                 />
                 <p className="text-gray-400 text-sm">{file?.name}</p>
-                <p className="text-xs text-gray-500">Click or drag to replace</p>
+                <p className="text-xs text-gray-500">{t('Click or drag to replace', 'बदलने के लिए क्लिक करें या फ़ाइल खींचें')}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -114,8 +116,8 @@ export default function DiseaseDetection() {
                   <p className="text-white font-medium mb-1">
                     {isDragActive ? 'Drop the image here!' : 'Drag & Drop a Leaf Photo'}
                   </p>
-                  <p className="text-gray-400 text-sm">or click to browse files</p>
-                  <p className="text-gray-600 text-xs mt-2">Supports JPG, PNG, WebP · Max 5MB</p>
+                  <p className="text-gray-400 text-sm">{t('or click to browse files', 'या फ़ाइल चुनने के लिए क्लिक करें')}</p>
+                  <p className="text-gray-600 text-xs mt-2">{t('Supports JPG, PNG, WebP · Max 5MB', 'JPG, PNG, WebP समर्थित · अधिकतम 5MB')}</p>
                 </div>
               </div>
             )}
@@ -172,7 +174,7 @@ export default function DiseaseDetection() {
             <div className="flex items-start gap-3 bg-red-900/20 border border-red-700/40 rounded-xl p-4">
               <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-red-300 text-sm font-medium">Analysis Failed</p>
+                <p className="text-red-300 text-sm font-medium">{t('Analysis Failed', 'विश्लेषण विफल हुआ')}</p>
                 <p className="text-red-400/70 text-xs mt-1">{error}</p>
               </div>
             </div>
@@ -187,8 +189,8 @@ export default function DiseaseDetection() {
                 <Loader2 className="w-8 h-8 text-red-400 animate-spin" />
               </div>
               <div>
-                <p className="text-white font-medium">AI Analyzing Your Image</p>
-                <p className="text-gray-400 text-sm mt-1">Scanning for disease patterns...</p>
+                <p className="text-white font-medium">{t('AI Analyzing Your Image', 'AI आपकी तस्वीर का विश्लेषण कर रहा है')}</p>
+                <p className="text-gray-400 text-sm mt-1">{t('Scanning for disease patterns...', 'रोग के संकेत खोजे जा रहे हैं...')}</p>
               </div>
               <div className="w-full max-w-xs space-y-2">
                 {['Preprocessing image', 'Extracting features', 'Running classification'].map((step, i) => (
@@ -207,8 +209,8 @@ export default function DiseaseDetection() {
                 <ShieldAlert className="w-10 h-10 text-gray-600" />
               </div>
               <div>
-                <p className="text-gray-300 font-medium">No Analysis Yet</p>
-                <p className="text-gray-500 text-sm mt-1">Upload a leaf photo and click Analyze</p>
+                <p className="text-gray-300 font-medium">{t('No Analysis Yet', 'अभी कोई विश्लेषण नहीं हुआ')}</p>
+                <p className="text-gray-500 text-sm mt-1">{t('Upload a leaf photo and click Analyze', 'पत्ते की फोटो अपलोड करें और विश्लेषण पर क्लिक करें')}</p>
               </div>
             </div>
           )}
@@ -226,7 +228,7 @@ export default function DiseaseDetection() {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h2 className="font-display text-xl font-bold text-white">{result.disease_name}</h2>
-                    <p className="text-gray-400 text-sm mt-0.5">Disease Analysis Result</p>
+                    <p className="text-gray-400 text-sm mt-0.5">{t('Disease Analysis Result', 'रोग विश्लेषण का परिणाम')}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-xs font-bold border ${sev.border} ${sev.color} ${sev.bg}`}>
                     {result.severity === 'None' ? '✅ Healthy' : `⚠️ ${result.severity} Severity`}
@@ -236,7 +238,7 @@ export default function DiseaseDetection() {
                 {/* Confidence Bar */}
                 <div className="mb-4">
                   <div className="flex justify-between text-xs text-gray-400 mb-1.5">
-                    <span>AI Confidence</span>
+                    <span>{t('AI Confidence', 'AI का भरोसा स्तर')}</span>
                     <span className={sev.color}>{result.confidence}%</span>
                   </div>
                   <div className="h-2 bg-gray-700 rounded-full overflow-hidden">

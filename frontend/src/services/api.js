@@ -44,8 +44,8 @@ export const getIrrigationCrops = () => api.get('/irrigation/crops')
 export const getWeather = (location = 'Maharashtra') => api.get(`/weather/?location=${location}`)
 
 // ---- Chat ----
-export const sendChatMessage = (message, sessionId = null) =>
-  api.post('/chat/', { message, session_id: sessionId })
+export const sendChatMessage = (message, sessionId = null, language = 'hi') =>
+  api.post('/chat/', { message, session_id: sessionId, language })
 
 // ---- Farm ----
 export const getFarmProfile = () => api.get('/farm/profile')

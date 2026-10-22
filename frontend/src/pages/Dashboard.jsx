@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Sprout, Droplets, Cloud, Bug, Brain, MapPin, Thermometer, Wind, Activity, Clock, MessageSquare } from 'lucide-react'
@@ -6,6 +7,7 @@ import { getFarmProfile, getFarmSummary, getWeather, getInsights } from '../serv
 import { RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 
 export default function Dashboard() {
+  const { t, language } = useLanguage()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState({
@@ -32,7 +34,7 @@ export default function Dashboard() {
           insights: insightsRes
         })
       } catch (e) {
-        toast.error("Failed to load some dashboard data")
+        toast.error(t('Failed to load some dashboard data', 'डैशबोर्ड का कुछ डेटा लोड नहीं हो सका'))
       } finally {
         setLoading(false)
       }
@@ -41,7 +43,7 @@ export default function Dashboard() {
   }, [])
 
   if (loading) {
-    return <div className="flex h-96 items-center justify-center text-primary-400">Loading Dashboard...</div>
+    return <div className="flex h-96 items-center justify-center text-primary-400">{t('Loading Dashboard...', 'डैशबोर्ड लोड हो रहा है...')}</div>
   }
 
   const npkData = data.summary?.soil_metrics ? [
@@ -54,7 +56,7 @@ export default function Dashboard() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Farm Dashboard</h1>
+          <h1 className="font-display text-2xl font-bold text-white">{t('Farm Dashboard', 'खेत का डैशबोर्ड')}</h1>
           <p className="text-gray-400 text-sm">{new Date().toLocaleDateString()}</p>
         </div>
       </div>
@@ -72,19 +74,19 @@ export default function Dashboard() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full md:w-auto">
           <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-            <div className="text-xs text-gray-400">Farm Area</div>
+            <div className="text-xs text-gray-400">{t('Farm Area', 'खेत का क्षेत्रफल')}</div>
             <div className="font-semibold text-white">{data.profile?.area_acres || 0} Acres</div>
           </div>
           <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-            <div className="text-xs text-gray-400">Current Crop</div>
+            <div className="text-xs text-gray-400">{t('Current Crop', 'वर्तमान फसल')}</div>
             <div className="font-semibold text-primary-400">{data.profile?.current_crop || 'None'}</div>
           </div>
           <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-            <div className="text-xs text-gray-400">Soil Type</div>
+            <div className="text-xs text-gray-400">{t('Soil Type', 'मिट्टी का प्रकार')}</div>
             <div className="font-semibold text-earth-300">{data.profile?.soil_type || 'Unknown'}</div>
           </div>
           <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-            <div className="text-xs text-gray-400">Health Score</div>
+            <div className="text-xs text-gray-400">{t('Health Score', 'स्वास्थ्य स्कोर')}</div>
             <div className="font-semibold text-blue-400">{data.profile?.soil_health_score || 0}/100</div>
           </div>
         </div>
@@ -95,41 +97,41 @@ export default function Dashboard() {
         <div className="metric-card">
           <div className="flex justify-between items-start">
             <Thermometer className="w-6 h-6 text-orange-400" />
-            <span className="text-xs text-gray-500">Current</span>
+            <span className="text-xs text-gray-500">{t('Current', 'अभी')}</span>
           </div>
           <div className="mt-4">
             <div className="text-2xl font-bold text-white">{data.weather?.current?.temperature || '--'}°C</div>
-            <div className="text-sm text-gray-400">Temperature</div>
+            <div className="text-sm text-gray-400">{t('Temperature', 'तापमान')}</div>
           </div>
         </div>
         <div className="metric-card">
           <div className="flex justify-between items-start">
             <Droplets className="w-6 h-6 text-blue-400" />
-            <span className="text-xs text-gray-500">Current</span>
+            <span className="text-xs text-gray-500">{t('Current', 'अभी')}</span>
           </div>
           <div className="mt-4">
             <div className="text-2xl font-bold text-white">{data.weather?.current?.humidity || '--'}%</div>
-            <div className="text-sm text-gray-400">Humidity</div>
+            <div className="text-sm text-gray-400">{t('Humidity', 'नमी')}</div>
           </div>
         </div>
         <div className="metric-card">
           <div className="flex justify-between items-start">
             <Cloud className="w-6 h-6 text-sky-400" />
-            <span className="text-xs text-gray-500">Today</span>
+            <span className="text-xs text-gray-500">{t('Today', 'आज')}</span>
           </div>
           <div className="mt-4">
             <div className="text-lg font-bold text-white truncate">{data.weather?.current?.condition || '--'}</div>
-            <div className="text-sm text-gray-400">Weather</div>
+            <div className="text-sm text-gray-400">{t('Weather', 'मौसम')}</div>
           </div>
         </div>
         <div className="metric-card border-primary-500/30">
           <div className="flex justify-between items-start">
             <Activity className="w-6 h-6 text-primary-400" />
-            <span className="text-xs text-primary-500">AI Analyzed</span>
+            <span className="text-xs text-primary-500">{t('AI Analyzed', 'AI द्वारा विश्लेषित')}</span>
           </div>
           <div className="mt-4">
             <div className="text-2xl font-bold text-white">{data.insights?.farm_health_score || '--'}/100</div>
-            <div className="text-sm text-gray-400">Farm Health</div>
+            <div className="text-sm text-gray-400">{t('Farm Health', 'खेत का स्वास्थ्य')}</div>
           </div>
         </div>
       </div>
@@ -137,7 +139,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* NPK Chart */}
         <div className="glass-card p-6 lg:col-span-1">
-          <h3 className="font-semibold text-white mb-4">Soil Nutrients (NPK)</h3>
+          <h3 className="font-semibold text-white mb-4">{t('Soil Nutrients (NPK)', 'मिट्टी के पोषक तत्व (NPK)')}</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart cx="50%" cy="50%" innerRadius="30%" outerRadius="100%" barSize={15} data={npkData}>
@@ -151,23 +153,23 @@ export default function Dashboard() {
 
         {/* Action Modules */}
         <div className="glass-card p-6 lg:col-span-2">
-          <h3 className="font-semibold text-white mb-4">AI Modules</h3>
+          <h3 className="font-semibold text-white mb-4">{t('AI Modules', 'AI सुविधाएँ')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
-              { path: '/crops', icon: Sprout, label: 'Crop Recommendation', desc: 'AI suggests best crops', color: 'text-green-400' },
-              { path: '/disease', icon: Bug, label: 'Disease Detection', desc: 'Scan leaves for disease', color: 'text-red-400' },
-              { path: '/irrigation', icon: Droplets, label: 'Smart Irrigation', desc: 'Optimize water usage', color: 'text-blue-400' },
-              { path: '/weather', icon: Cloud, label: 'Weather Intel', desc: 'Farm-specific forecasts', color: 'text-sky-400' },
-              { path: '/insights', icon: Brain, label: 'AI Insights', desc: 'Actionable farm analytics', color: 'text-purple-400' },
-              { path: '/chat', icon: MessageSquare, label: 'Farm Assistant', desc: 'Ask agriculture questions', color: 'text-yellow-400' }
+              { path: '/crops', icon: Sprout, label: 'Crop Recommendation', labelHi: 'फसल की सलाह', desc: 'AI suggests best crops', descHi: 'AI बेहतर फसल सुझाता है', color: 'text-green-400' },
+              { path: '/disease', icon: Bug, label: 'Disease Detection', labelHi: 'रोग की पहचान', desc: 'Scan leaves for disease', descHi: 'पत्तों में रोग की जाँच करें', color: 'text-red-400' },
+              { path: '/irrigation', icon: Droplets, label: 'Smart Irrigation', labelHi: 'स्मार्ट सिंचाई', desc: 'Optimize water usage', descHi: 'पानी का सही उपयोग करें', color: 'text-blue-400' },
+              { path: '/weather', icon: Cloud, label: 'Weather Intel', labelHi: 'मौसम जानकारी', desc: 'Farm-specific forecasts', descHi: 'खेत के अनुसार मौसम पूर्वानुमान', color: 'text-sky-400' },
+              { path: '/insights', icon: Brain, label: 'AI Insights', labelHi: 'AI खेती विश्लेषण', desc: 'Actionable farm analytics', descHi: 'खेती के लिए उपयोगी विश्लेषण', color: 'text-purple-400' },
+              { path: '/chat', icon: MessageSquare, label: 'Farm Assistant', labelHi: 'खेती सहायक', desc: 'Ask agriculture questions', descHi: 'खेती से जुड़े सवाल पूछें', color: 'text-yellow-400' }
             ].map((mod, i) => (
               <button key={i} onClick={() => navigate(mod.path)} className="flex items-start gap-4 p-4 rounded-xl bg-gray-800/40 border border-gray-700 hover:border-gray-500 transition-all text-left">
                 <div className={`p-2 rounded-lg bg-gray-900 ${mod.color}`}>
                   <mod.icon className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="font-semibold text-white">{mod.label}</div>
-                  <div className="text-xs text-gray-400">{mod.desc}</div>
+                  <div className="font-semibold text-white">{language === 'hi' ? mod.labelHi : mod.label}</div>
+                  <div className="text-xs text-gray-400">{language === 'hi' ? mod.descHi : mod.desc}</div>
                 </div>
               </button>
             ))}

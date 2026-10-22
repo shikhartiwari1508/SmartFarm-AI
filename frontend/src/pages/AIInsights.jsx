@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext'
 import { useState, useEffect } from 'react'
 import { Brain, AlertTriangle, CheckCircle, Info, Lightbulb, RefreshCw, Loader2, ArrowRight } from 'lucide-react'
 import { getInsights } from '../services/api'
@@ -18,6 +19,7 @@ const ACTION_MAP = {
 }
 
 export default function AIInsights() {
+  const { t, language } = useLanguage()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
@@ -28,7 +30,7 @@ export default function AIInsights() {
       const res = await getInsights()
       setData(res)
     } catch (e) {
-      toast.error("Failed to load insights")
+      toast.error(t('Failed to load insights', 'जानकारी लोड नहीं हो सकी'))
     } finally {
       setLoading(false)
     }
@@ -44,8 +46,8 @@ export default function AIInsights() {
             <Brain className="w-5 h-5 text-yellow-400" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-white">AI Insights</h1>
-            <p className="text-gray-400 text-sm">Smart contextual analysis of your farm conditions</p>
+            <h1 className="font-display text-2xl font-bold text-white">{t('AI Insights', 'AI की जानकारी')}</h1>
+            <p className="text-gray-400 text-sm">{t('Smart contextual analysis of your farm conditions', 'आपके खेत की स्थिति का स्मार्ट विश्लेषण')}</p>
           </div>
         </div>
         <button onClick={fetchInsights} className="btn-secondary px-4 py-2">
@@ -60,7 +62,7 @@ export default function AIInsights() {
       ) : (
         <div className="grid gap-4">
           <div className="glass-card p-6 bg-gradient-to-r from-gray-900 to-gray-800 border-l-4 border-l-primary-500">
-             <div className="text-gray-400 text-sm mb-1">Overall Farm Health Score</div>
+             <div className="text-gray-400 text-sm mb-1">{t('Overall Farm Health Score', 'खेत के स्वास्थ्य का कुल स्कोर')}</div>
              <div className="text-4xl font-display font-bold text-white">{data?.farm_health_score}/100</div>
              <p className="text-sm mt-2 text-gray-300">Generated on {data?.generated_at}</p>
           </div>
