@@ -8,7 +8,7 @@ The project combines a **FastAPI backend** with a **React + Vite frontend** to p
 
 ---
 <p align="center">
-  <a href="https://smartfarmai-amber.vercel.app/">🌐 Live Demo</a>
+  <a href="https://smartfarmai-amber.vercel.app/"></a>
 
 ## 🚀 Features
 
