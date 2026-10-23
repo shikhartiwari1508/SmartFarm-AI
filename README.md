@@ -7,8 +7,8 @@ SmartFarm-AI is a modern AI-powered agriculture platform designed to help farmer
 The project combines a **FastAPI backend** with a **React + Vite frontend** to provide an interactive and user-friendly smart farming experience.
 
 ---
-
-  <a href="https://smartfarmai-amber.vercel.app/"></a>
+  <p align="center">
+  <a href="https://smartfarmai-amber.vercel.app/"> Go to Website </a>
 
 ## 🚀 Features
 
