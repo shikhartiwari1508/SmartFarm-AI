@@ -270,7 +270,8 @@ The repository includes `.env.example` as a safe configuration template.
 
 ### AI Farm Assistant
 
-*Add chatbot screenshot here.*
+*<img width="1508" height="722" alt="image" src="https://github.com/user-attachments/assets/e9914588-2529-4bc4-ad4f-62f2934861dd" />
+*
 
 ### Smart Irrigation
 
