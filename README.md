@@ -265,7 +265,8 @@ The repository includes `.env.example` as a safe configuration template.
 
 ### Crop Recommendation
 
-*Add crop recommendation screenshot here.*
+*<img width="1510" height="727" alt="image" src="https://github.com/user-attachments/assets/20dab7e9-faf5-40fa-a484-d09ad1ea0db5" />
+*
 
 ### AI Farm Assistant
 
