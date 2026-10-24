@@ -275,7 +275,8 @@ The repository includes `.env.example` as a safe configuration template.
 
 ### Smart Irrigation
 
-*Add irrigation screenshot here.*
+*<img width="1503" height="731" alt="image" src="https://github.com/user-attachments/assets/43a2d2f6-44e8-43a2-b989-9c3f9e5a8980" />
+*
 
 ---
 
