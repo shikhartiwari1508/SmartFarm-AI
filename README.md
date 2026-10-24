@@ -260,7 +260,8 @@ The repository includes `.env.example` as a safe configuration template.
 
 ### Dashboard
 
-*Add dashboard screenshot here.*
+*<img width="1508" height="722" alt="image" src="https://github.com/user-attachments/assets/498b7f50-0ed5-4286-94ae-22336a015a75" />
+*
 
 ### Crop Recommendation
 
