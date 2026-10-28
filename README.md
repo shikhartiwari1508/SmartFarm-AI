@@ -310,7 +310,7 @@ SmartFarm-AI aims to:
 
 ## 👨‍💻 Developer
 
-**Shikhar Tiwari**
+**Mr. Shikhar Tiwari**
 
 BCA-MCA Data Science
 
