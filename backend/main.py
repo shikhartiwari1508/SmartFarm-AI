@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from backend.database import create_tables
-from backend.routers import crops, disease, irrigation, weather, chat, farm, insights
+from backend.routers import crops, disease, irrigation, weather, chat, farm, insights, market_prices
 from backend.config import settings
 
 
@@ -19,13 +19,11 @@ async def lifespan(app: FastAPI):
     # Startup
     await create_tables()
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-    print("✅ SmartFarm AI backend started successfully")
-    print(f"📊 Demo Mode: {'ON' if settings.ML_DEMO_MODE else 'OFF'}")
+    print("SmartFarm AI backend started successfully")
+    print(f"Demo Mode: {'ON' if settings.ML_DEMO_MODE else 'OFF'}")
     yield
     # Shutdown
-    print("🔴 SmartFarm AI backend shutting down")
-
-
+    print("SmartFarm AI backend shutting down")
 app = FastAPI(
     title="SmartFarm AI",
     description="AI-Powered Agriculture Platform for Smarter Farming",
@@ -54,6 +52,7 @@ app.include_router(weather.router, prefix="/api/weather", tags=["Weather Intelli
 app.include_router(chat.router, prefix="/api/chat", tags=["AI Assistant"])
 app.include_router(farm.router, prefix="/api/farm", tags=["Farm Management"])
 app.include_router(insights.router, prefix="/api/insights", tags=["AI Insights"])
+app.include_router(market_prices.router, prefix="/api/market-prices", tags=["Mandi Market Prices"])
 
 
 @app.get("/", tags=["Health"])

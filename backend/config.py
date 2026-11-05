@@ -1,6 +1,7 @@
 """
 SmartFarm AI - Application Configuration
 """
+from pathlib import Path
 from pydantic_settings import BaseSettings
 
 
@@ -25,10 +26,11 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "https://smartfarmai-amber.vercel.app"
     
     GEMINI_API_KEY: str = ""
+    DATA_GOV_API_KEY: str = ""
     CHAT_DEMO_MODE: bool = True
 
     class Config:
-        env_file = ".env"
+        env_file = str(Path(__file__).resolve().parent / ".env")
         extra = "ignore"
 
 

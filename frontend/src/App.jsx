@@ -7,6 +7,7 @@ import SmartIrrigation from './pages/SmartIrrigation'
 import WeatherDashboard from './pages/WeatherDashboard'
 import ChatAssistant from './pages/ChatAssistant'
 import AIInsights from './pages/AIInsights'
+import MarketPrices from './pages/MarketPrices'
 import Layout from './components/Layout'
 import { LanguageProvider } from './context/LanguageContext'
 
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/weather" element={<WeatherDashboard />} />
         <Route path="/chat" element={<ChatAssistant />} />
         <Route path="/insights" element={<AIInsights />} />
+        <Route path="/market-prices" element={<MarketPrices />} />
       </Route>
     </Routes>
     </LanguageProvider>

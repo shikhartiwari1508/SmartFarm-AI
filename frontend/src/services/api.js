@@ -58,3 +58,6 @@ export const getInsights = (params = {}) => api.get('/insights/', { params })
 export const healthCheck = () => api.get('/health')
 
 export default api
+
+// ---- Official Mandi Market Prices ----
+export const getMarketPrices = (params = {}) => api.get('/market-prices/', { params })

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Sprout, Bug, Droplets, Cloud,
-  MessageSquare, Lightbulb, Menu, X, ChevronRight,
+  MessageSquare, Lightbulb, Menu, X, ChevronRight, TrendingUp,
   Leaf, LogOut
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { path: '/disease', icon: Bug, labelEn: 'Disease Detection', labelHi: 'रोग पहचान', color: 'text-red-400' },
   { path: '/irrigation', icon: Droplets, labelEn: 'Smart Irrigation', labelHi: 'स्मार्ट सिंचाई', color: 'text-blue-400' },
   { path: '/weather', icon: Cloud, labelEn: 'Weather Intelligence', labelHi: 'मौसम जानकारी', color: 'text-sky-400' },
+  { path: '/market-prices', icon: TrendingUp, labelEn: 'Mandi Prices', labelHi: 'मंडी भाव', color: 'text-emerald-400' },
   { path: '/insights', icon: Lightbulb, labelEn: 'AI Insights', labelHi: 'AI जानकारी', color: 'text-yellow-400' },
   { path: '/chat', icon: MessageSquare, labelEn: 'SmartFarm Assistant', labelHi: 'स्मार्टफार्म सहायक', color: 'text-purple-400' },
 ]
@@ -47,7 +48,7 @@ export default function Layout() {
             </div>
             <div>
               <div className="font-display font-bold text-white text-sm leading-tight">SmartFarm AI</div>
-              <div className="text-xs text-gray-500">{t('Smart Farming Platform', 'स्मार्ट खेती प्लेटफ़ॉर्म')}</div>
+              <div className="text-xs text-gray-500">{t('Smart Farming Platform', 'स्मार्ट खेती प्लेटफॉर्म')}</div>
             </div>
           </button>
           <button
