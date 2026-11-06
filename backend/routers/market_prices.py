@@ -7,11 +7,13 @@ import json
 import subprocess
 import asyncio
 import platform
+import logging
 
 from fastapi import APIRouter, HTTPException, Query
 from backend.config import settings
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 DATA_URL = "https://api.data.gov.in/resource/35985678-0d79-46b4-9ed6-6f13308a1d24"
 
@@ -39,9 +41,26 @@ def fetch_mandi_data(params):
     )
 
     if result.returncode != 0:
-        raise RuntimeError(result.stderr or "Official API request failed.")
+        # Never expose the API key in application logs.
+        api_key = str(params.get("api-key", ""))
+        safe_error = result.stderr or "No error details returned by curl."
 
-    return json.loads(result.stdout)
+        if api_key:
+            safe_error = safe_error.replace(api_key, "[REDACTED]")
+
+        logger.error(
+            "data.gov.in request failed. Curl exit code: %s. Error: %s",
+            result.returncode,
+            safe_error[:1000]
+        )
+
+        raise RuntimeError("Official API request failed.")
+
+    try:
+        return json.loads(result.stdout)
+    except json.JSONDecodeError:
+        logger.error("data.gov.in returned an invalid JSON response.")
+        raise
 
 
 @router.get("/")
@@ -80,12 +99,14 @@ async def get_market_prices(
         payload = await asyncio.to_thread(fetch_mandi_data, params)
 
     except subprocess.TimeoutExpired:
+        logger.error("data.gov.in request timed out.")
         raise HTTPException(
             status_code=504,
             detail="Official mandi data service timed out. Please try again."
         )
 
     except FileNotFoundError:
+        logger.error("Curl executable was not found on the server.")
         raise HTTPException(
             status_code=503,
             detail="Curl is not installed on this server."
