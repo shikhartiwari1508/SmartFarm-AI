@@ -15,7 +15,7 @@ from backend.config import settings
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-DATA_URL = "https://api.data.gov.in/resource/35985678-0d79-46b4-9ed6-6f13308a1d24"
+DATA_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
 
 
 def fetch_mandi_data(params):
@@ -25,7 +25,7 @@ def fetch_mandi_data(params):
         "--show-error",
         "--fail-with-body",
         "--connect-timeout", "20",
-        "--max-time", "120",
+        "--max-time", "60",
         "--get",
         DATA_URL,
     ]
@@ -37,29 +37,27 @@ def fetch_mandi_data(params):
         curl_command,
         capture_output=True,
         text=True,
-        timeout=125
+        timeout=65
     )
 
     if result.returncode != 0:
-        # Never expose the API key in application logs.
         api_key = str(params.get("api-key", ""))
-        safe_error = result.stderr or "No error details returned by curl."
+        safe_error = result.stderr or "No error details returned."
 
         if api_key:
             safe_error = safe_error.replace(api_key, "[REDACTED]")
 
         logger.error(
-            "data.gov.in request failed. Curl exit code: %s. Error: %s",
+            "Mandi API request failed. Curl exit code: %s. Error: %s",
             result.returncode,
             safe_error[:1000]
         )
-
-        raise RuntimeError("Official API request failed.")
+        raise RuntimeError("Official Mandi API request failed.")
 
     try:
         return json.loads(result.stdout)
     except json.JSONDecodeError:
-        logger.error("data.gov.in returned an invalid JSON response.")
+        logger.error("Mandi API returned invalid JSON.")
         raise
 
 
@@ -84,29 +82,29 @@ async def get_market_prices(
         "format": "json",
         "limit": limit,
         "offset": 0,
-        "filters[State]": state,
-        "filters[Commodity]": commodity,
-        "sort[Arrival_Date]": "desc",
+        "filters[state.keyword]": state,
+        "filters[commodity]": commodity,
+        "sort[arrival_date]": "desc",
     }
 
     if district:
-        params["filters[District]"] = district
+        params["filters[district]"] = district
 
     if market:
-        params["filters[Market]"] = market
+        params["filters[market]"] = market
 
     try:
         payload = await asyncio.to_thread(fetch_mandi_data, params)
 
     except subprocess.TimeoutExpired:
-        logger.error("data.gov.in request timed out.")
+        logger.error("Mandi API request timed out.")
         raise HTTPException(
             status_code=504,
             detail="Official mandi data service timed out. Please try again."
         )
 
     except FileNotFoundError:
-        logger.error("Curl executable was not found on the server.")
+        logger.error("Curl executable was not found.")
         raise HTTPException(
             status_code=503,
             detail="Curl is not installed on this server."
@@ -129,20 +127,20 @@ async def get_market_prices(
 
     for item in records:
         try:
-            min_price = float(item.get("Min_Price") or 0)
-            max_price = float(item.get("Max_Price") or 0)
-            modal_price = float(item.get("Modal_Price") or 0)
+            min_price = float(item.get("min_price") or 0)
+            max_price = float(item.get("max_price") or 0)
+            modal_price = float(item.get("modal_price") or 0)
         except (TypeError, ValueError):
             continue
 
         cleaned_records.append({
-            "state": item.get("State", ""),
-            "district": item.get("District", ""),
-            "market": item.get("Market", ""),
-            "commodity": item.get("Commodity", ""),
-            "variety": item.get("Variety", ""),
-            "grade": item.get("Grade", ""),
-            "arrival_date": item.get("Arrival_Date", ""),
+            "state": item.get("state", ""),
+            "district": item.get("district", ""),
+            "market": item.get("market", ""),
+            "commodity": item.get("commodity", ""),
+            "variety": item.get("variety", ""),
+            "grade": item.get("grade", ""),
+            "arrival_date": item.get("arrival_date", ""),
             "min_price": min_price,
             "max_price": max_price,
             "modal_price": modal_price,

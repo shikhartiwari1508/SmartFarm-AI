@@ -50,3 +50,6 @@ logs/
 
 # Local backup files
 *.backup
+
+# Temporary API fix backup
+market_prices_before_api_fix.py
