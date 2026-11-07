@@ -4,9 +4,6 @@ Main application entry point
 """
 
 import os
-import socket
-import ssl
-import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -14,7 +11,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from backend.database import create_tables
-from backend.routers import crops, disease, irrigation, weather, chat, farm, insights, market_prices
+from backend.routers import (
+    crops,
+    disease,
+    irrigation,
+    weather,
+    chat,
+    farm,
+    insights,
+    market_prices,
+)
 from backend.config import settings
 
 
@@ -78,85 +84,4 @@ async def health_check():
         "service": "SmartFarm AI Backend",
         "demo_mode": settings.ML_DEMO_MODE,
         "environment": settings.APP_ENV,
-    }
-
-
-def probe_host(hostname: str):
-    result = {
-        "host": hostname,
-        "dns": "not_tested",
-        "addresses": [],
-        "tests": [],
-    }
-
-    try:
-        address_info = socket.getaddrinfo(
-            hostname,
-            443,
-            type=socket.SOCK_STREAM,
-        )
-        addresses = list(dict.fromkeys(item[4][0] for item in address_info))
-        result["dns"] = "ok"
-        result["addresses"] = addresses
-    except Exception as exc:
-        result["dns"] = "failed"
-        result["dns_error"] = f"{type(exc).__name__}: {str(exc)[:300]}"
-        return result
-
-    for ip in addresses[:6]:
-        test = {
-            "ip": ip,
-            "tcp": "not_tested",
-            "tls": "not_tested",
-        }
-
-        try:
-            with socket.create_connection((ip, 443), timeout=6) as connection:
-                test["tcp"] = "connected"
-
-                try:
-                    context = ssl.create_default_context()
-                    with context.wrap_socket(
-                        connection,
-                        server_hostname=hostname,
-                    ) as secure_connection:
-                        test["tls"] = "connected"
-                        test["tls_version"] = secure_connection.version()
-                except Exception as exc:
-                    test["tls"] = "failed"
-                    test["tls_error"] = (
-                        f"{type(exc).__name__}: {str(exc)[:300]}"
-                    )
-
-        except Exception as exc:
-            test["tcp"] = "failed"
-            test["tcp_error"] = (
-                f"{type(exc).__name__}: {str(exc)[:300]}"
-            )
-
-        result["tests"].append(test)
-
-    return result
-
-
-@app.get("/api/diagnostics/network", tags=["Diagnostics"])
-async def network_diagnostics():
-    targets = [
-        "www.google.com",
-        "api.data.gov.in",
-    ]
-
-    results = await asyncio.gather(
-        *[
-            asyncio.to_thread(probe_host, hostname)
-            for hostname in targets
-        ]
-    )
-
-    return {
-        "diagnostic": "tcp_ssl_connectivity",
-        "results": {
-            result["host"]: result
-            for result in results
-        },
     }

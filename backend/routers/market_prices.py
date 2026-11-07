@@ -1,64 +1,67 @@
 ﻿"""
-SmartFarm AI - Official Mandi Market Prices API
+SmartFarm AI - Cached Mandi Market Prices API
 Source: AGMARKNET / data.gov.in
+Data is served from a locally stored JSON snapshot.
 """
 
 import json
-import subprocess
-import asyncio
-import platform
 import logging
+from datetime import datetime
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Query
-from backend.config import settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-DATA_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+DATA_FILE = (
+    Path(__file__).resolve().parents[1]
+    / "data"
+    / "mandi_prices.json"
+)
 
 
-def fetch_mandi_data(params):
-    curl_command = [
-        "curl.exe" if platform.system() == "Windows" else "curl",
-        "--silent",
-        "--show-error",
-        "--fail-with-body",
-        "--connect-timeout", "20",
-        "--max-time", "60",
-        "--get",
-        DATA_URL,
-    ]
-
-    for key, value in params.items():
-        curl_command.extend(["--data-urlencode", f"{key}={value}"])
-
-    result = subprocess.run(
-        curl_command,
-        capture_output=True,
-        text=True,
-        timeout=65
-    )
-
-    if result.returncode != 0:
-        api_key = str(params.get("api-key", ""))
-        safe_error = result.stderr or "No error details returned."
-
-        if api_key:
-            safe_error = safe_error.replace(api_key, "[REDACTED]")
-
-        logger.error(
-            "Mandi API request failed. Curl exit code: %s. Error: %s",
-            result.returncode,
-            safe_error[:1000]
+def load_mandi_data():
+    if not DATA_FILE.exists():
+        logger.error("Mandi snapshot file not found: %s", DATA_FILE)
+        raise HTTPException(
+            status_code=503,
+            detail="Mandi data is not available. Please try again later."
         )
-        raise RuntimeError("Official Mandi API request failed.")
 
     try:
-        return json.loads(result.stdout)
-    except json.JSONDecodeError:
-        logger.error("Mandi API returned invalid JSON.")
-        raise
+        with DATA_FILE.open("r", encoding="utf-8") as file:
+            payload = json.load(file)
+
+        if not isinstance(payload, dict) or not isinstance(
+            payload.get("records"), list
+        ):
+            raise ValueError("Invalid mandi snapshot structure.")
+
+        return payload
+
+    except (OSError, json.JSONDecodeError, ValueError):
+        logger.exception("Unable to read mandi snapshot.")
+        raise HTTPException(
+            status_code=503,
+            detail="Mandi data cache is temporarily unavailable."
+        )
+
+
+def normalize(value):
+    return str(value or "").strip().casefold()
+
+
+def parse_arrival_date(value):
+    value = str(value or "").strip()
+
+    for date_format in ("%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y"):
+        try:
+            return datetime.strptime(value, date_format)
+        except ValueError:
+            continue
+
+    return datetime.min
 
 
 @router.get("/")
@@ -69,63 +72,27 @@ async def get_market_prices(
     market: str = Query(None),
     limit: int = Query(10, ge=1, le=100),
 ):
-    api_key = settings.DATA_GOV_API_KEY.strip()
+    payload = load_mandi_data()
 
-    if not api_key:
-        raise HTTPException(
-            status_code=503,
-            detail="DATA_GOV_API_KEY is not configured."
-        )
-
-    params = {
-        "api-key": api_key,
-        "format": "json",
-        "limit": limit,
-        "offset": 0,
-        "filters[state.keyword]": state,
-        "filters[commodity]": commodity,
-        "sort[arrival_date]": "desc",
-    }
-
-    if district:
-        params["filters[district]"] = district
-
-    if market:
-        params["filters[market]"] = market
-
-    try:
-        payload = await asyncio.to_thread(fetch_mandi_data, params)
-
-    except subprocess.TimeoutExpired:
-        logger.error("Mandi API request timed out.")
-        raise HTTPException(
-            status_code=504,
-            detail="Official mandi data service timed out. Please try again."
-        )
-
-    except FileNotFoundError:
-        logger.error("Curl executable was not found.")
-        raise HTTPException(
-            status_code=503,
-            detail="Curl is not installed on this server."
-        )
-
-    except RuntimeError:
-        raise HTTPException(
-            status_code=502,
-            detail="Unable to retrieve data from the official mandi service."
-        )
-
-    except (ValueError, json.JSONDecodeError):
-        raise HTTPException(
-            status_code=502,
-            detail="Invalid response from official mandi data provider."
-        )
-
-    records = payload.get("records", [])
-    cleaned_records = []
+    records = payload["records"]
+    filtered_records = []
 
     for item in records:
+        if not isinstance(item, dict):
+            continue
+
+        if normalize(item.get("commodity")) != normalize(commodity):
+            continue
+
+        if normalize(item.get("state")) != normalize(state):
+            continue
+
+        if district and normalize(item.get("district")) != normalize(district):
+            continue
+
+        if market and normalize(item.get("market")) != normalize(market):
+            continue
+
         try:
             min_price = float(item.get("min_price") or 0)
             max_price = float(item.get("max_price") or 0)
@@ -133,7 +100,7 @@ async def get_market_prices(
         except (TypeError, ValueError):
             continue
 
-        cleaned_records.append({
+        filtered_records.append({
             "state": item.get("state", ""),
             "district": item.get("district", ""),
             "market": item.get("market", ""),
@@ -149,14 +116,25 @@ async def get_market_prices(
             "modal_price_per_kg": round(modal_price / 100, 2),
         })
 
+    filtered_records.sort(
+        key=lambda record: parse_arrival_date(record["arrival_date"]),
+        reverse=True
+    )
+
+    total = len(filtered_records)
+    result_records = filtered_records[:limit]
+
+    generated_at = payload.get("generated_at")
+
     return {
         "success": True,
-        "source": "AGMARKNET / data.gov.in",
+        "source": payload.get("source", "AGMARKNET / data.gov.in"),
         "message": (
-            "Live mandi data retrieved successfully."
-            if cleaned_records
+            "Mandi data retrieved successfully from the cached official snapshot."
+            if result_records
             else "No mandi records found for these filters."
         ),
-        "total": len(cleaned_records),
-        "records": cleaned_records,
+        "generated_at": generated_at,
+        "total": total,
+        "records": result_records,
     }

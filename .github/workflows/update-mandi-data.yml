@@ -1,0 +1,81 @@
+﻿name: Update Official Mandi Data
+
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-mandi-data
+  cancel-in-progress: false
+
+jobs:
+  update-mandi-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch official mandi data
+        env:
+          DATA_GOV_API_KEY: ${{ secrets.DATA_GOV_API_KEY }}
+        run: python scripts/fetch_mandi_data.py
+
+      - name: Check whether mandi records changed
+        id: changes
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+
+          path = Path("backend/data/mandi_prices.json")
+
+          try:
+              old_text = subprocess.check_output(
+                  ["git", "show", f"HEAD:{path.as_posix()}"],
+                  text=True
+              )
+              old_records = json.loads(old_text).get("records", [])
+          except subprocess.CalledProcessError:
+              old_records = None
+
+          new_records = json.loads(path.read_text(encoding="utf-8")).get("records", [])
+
+          if old_records == new_records:
+              print("No mandi record changes detected.")
+              with path.open("w", encoding="utf-8") as file:
+                  json.dump(
+                      json.loads(old_text),
+                      file,
+                      ensure_ascii=False,
+                      separators=(",", ":")
+                  )
+              changed = "false"
+          else:
+              print("Mandi records have changed.")
+              changed = "true"
+
+          with open(__import__("os").environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"changed={changed}\n")
+          PY
+
+      - name: Commit updated mandi snapshot
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/data/mandi_prices.json
+          git commit -m "data: update official mandi price snapshot"
+          git push origin main
