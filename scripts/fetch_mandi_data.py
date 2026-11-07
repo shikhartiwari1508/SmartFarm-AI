@@ -49,7 +49,19 @@ def fetch_page(curl, api_key, commodity, offset):
             )
 
             if result.returncode != 0:
-                raise RuntimeError("Official API request failed.")
+                details = (result.stderr or "").strip()
+                response_body = (result.stdout or "").strip()
+
+                details = details.replace(api_key, "[REDACTED]")
+                response_body = response_body.replace(api_key, "[REDACTED]")
+
+                diagnostic = (
+                    f"curl exit code: {result.returncode}; "
+                    f"stderr: {details[-1000:]}; "
+                    f"response: {response_body[-1000:]}"
+                )
+
+                raise RuntimeError(diagnostic)
 
             payload = json.loads(result.stdout)
 
@@ -63,9 +75,10 @@ def fetch_page(curl, api_key, commodity, offset):
 
         except Exception as error:
             if attempt == MAX_RETRIES:
+                message = str(error).replace(api_key, "[REDACTED]")
                 raise RuntimeError(
-                    f"{commodity} request failed after {MAX_RETRIES} attempts "
-                    f"({type(error).__name__})."
+                    f"{commodity} request failed after {MAX_RETRIES} attempts: "
+                    f"{message}"
                 ) from None
 
             print(
