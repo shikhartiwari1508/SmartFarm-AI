@@ -1,4 +1,4 @@
-﻿name: Update Official Mandi Data
+name: Update Official Mandi Data
 
 on:
   schedule:
@@ -27,6 +27,23 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Diagnose network before attempting API fetch.
+      - name: Diagnose data.gov.in connectivity
+        run: |
+          echo "=================================="
+          echo "Testing data.gov.in IPv4 access"
+          echo "=================================="
+
+          echo "Testing API hostname..."
+          curl -4 -I -v --connect-timeout 10 --max-time 20 \
+            https://api.data.gov.in/ || true
+
+          echo "Testing official website..."
+          curl -4 -I -v --connect-timeout 10 --max-time 20 \
+            https://data.gov.in/ || true
+
+          echo "Network diagnostics completed."
+
       - name: Fetch official mandi data
         env:
           DATA_GOV_API_KEY: ${{ secrets.DATA_GOV_API_KEY }}
@@ -37,37 +54,35 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import os
           import subprocess
           from pathlib import Path
 
           path = Path("backend/data/mandi_prices.json")
 
-          try:
-              old_text = subprocess.check_output(
-                  ["git", "show", f"HEAD:{path.as_posix()}"],
-                  text=True
-              )
-              old_records = json.loads(old_text).get("records", [])
-          except subprocess.CalledProcessError:
-              old_records = None
+          old_text = subprocess.check_output(
+              ["git", "show", f"HEAD:{path.as_posix()}"],
+              text=True
+          )
 
-          new_records = json.loads(path.read_text(encoding="utf-8")).get("records", [])
+          old_records = json.loads(old_text).get("records", [])
+          new_data = json.loads(path.read_text(encoding="utf-8"))
+          new_records = new_data.get("records", [])
 
           if old_records == new_records:
               print("No mandi record changes detected.")
-              with path.open("w", encoding="utf-8") as file:
-                  json.dump(
-                      json.loads(old_text),
-                      file,
-                      ensure_ascii=False,
-                      separators=(",", ":")
-                  )
+
+              path.write_text(
+                  old_text,
+                  encoding="utf-8"
+              )
+
               changed = "false"
           else:
               print("Mandi records have changed.")
               changed = "true"
 
-          with open(__import__("os").environ["GITHUB_OUTPUT"], "a") as output:
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
               output.write(f"changed={changed}\n")
           PY
 
@@ -76,6 +91,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add backend/data/mandi_prices.json
           git commit -m "data: update official mandi price snapshot"
           git push origin main
