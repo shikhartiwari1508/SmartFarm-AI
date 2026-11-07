@@ -1,4 +1,4 @@
-﻿"""
+"""
 SmartFarm AI - Cached Mandi Market Prices API
 Source: AGMARKNET / data.gov.in
 Data is served from a locally stored JSON snapshot.
@@ -52,6 +52,15 @@ def normalize(value):
     return str(value or "").strip().casefold()
 
 
+def unique_values(records, field):
+    values = {
+        str(item.get(field, "")).strip()
+        for item in records
+        if isinstance(item, dict) and item.get(field)
+    }
+    return sorted(values, key=str.casefold)
+
+
 def parse_arrival_date(value):
     value = str(value or "").strip()
 
@@ -64,6 +73,60 @@ def parse_arrival_date(value):
     return datetime.min
 
 
+@router.get("/filters")
+async def get_market_price_filters(
+    state: str = Query(None),
+    commodity: str = Query(None),
+    district: str = Query(None),
+):
+    """
+    Districts are filtered by state and commodity.
+    Markets are filtered by state and district, independent of commodity.
+    """
+    payload = load_mandi_data()
+    records = [
+        item for item in payload["records"]
+        if isinstance(item, dict)
+    ]
+
+    state_records = records
+
+    if state:
+        state_records = [
+            item for item in state_records
+            if normalize(item.get("state")) == normalize(state)
+        ]
+
+    commodity_records = state_records
+
+    if commodity:
+        commodity_records = [
+            item for item in commodity_records
+            if normalize(item.get("commodity")) == normalize(commodity)
+        ]
+
+    districts = unique_values(commodity_records, "district")
+
+    # Markets must not depend on the selected crop.
+    market_records = state_records
+
+    if district:
+        market_records = [
+            item for item in market_records
+            if normalize(item.get("district")) == normalize(district)
+        ]
+
+    markets = unique_values(market_records, "market")
+
+    return {
+        "success": True,
+        "generated_at": payload.get("generated_at"),
+        "total_records": len(records),
+        "commodities": unique_values(records, "commodity"),
+        "states": unique_values(records, "state"),
+        "districts": districts,
+        "markets": markets,
+    }
 @router.get("/")
 async def get_market_prices(
     commodity: str = Query(..., min_length=2),

@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 import time
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -16,12 +17,12 @@ API_URL = (
     "9ef84268-d588-465a-a308-a864a43d0070"
 )
 
-COMMODITIES = ["Wheat", "Rice", "Maize", "Mustard", "Potato"]
 PAGE_SIZE = 1000
 MAX_RETRIES = 3
+REQUEST_TIMEOUT = 100
 
 
-def fetch_page(curl, api_key, commodity, offset):
+def fetch_page(curl, api_key, offset):
     command = [
         curl,
         "--silent",
@@ -35,7 +36,6 @@ def fetch_page(curl, api_key, commodity, offset):
         "--data-urlencode", "format=json",
         "--data-urlencode", f"limit={PAGE_SIZE}",
         "--data-urlencode", f"offset={offset}",
-        "--data-urlencode", f"filters[commodity]={commodity}",
     ]
 
     for attempt in range(1, MAX_RETRIES + 1):
@@ -44,7 +44,9 @@ def fetch_page(curl, api_key, commodity, offset):
                 command,
                 capture_output=True,
                 text=True,
-                timeout=100,
+                encoding="utf-8",
+                errors="replace",
+                timeout=REQUEST_TIMEOUT,
                 check=False,
             )
 
@@ -53,15 +55,15 @@ def fetch_page(curl, api_key, commodity, offset):
                 response_body = (result.stdout or "").strip()
 
                 details = details.replace(api_key, "[REDACTED]")
-                response_body = response_body.replace(api_key, "[REDACTED]")
+                response_body = response_body.replace(
+                    api_key, "[REDACTED]"
+                )
 
-                diagnostic = (
+                raise RuntimeError(
                     f"curl exit code: {result.returncode}; "
                     f"stderr: {details[-1000:]}; "
                     f"response: {response_body[-1000:]}"
                 )
-
-                raise RuntimeError(diagnostic)
 
             payload = json.loads(result.stdout)
 
@@ -69,61 +71,116 @@ def fetch_page(curl, api_key, commodity, offset):
                 raise RuntimeError("Invalid API response.")
 
             if not isinstance(payload.get("records"), list):
-                raise RuntimeError("API response has no valid records list.")
+                raise RuntimeError(
+                    "API response has no valid records list."
+                )
+
+            if "total" not in payload:
+                raise RuntimeError(
+                    "API response is missing total record count."
+                )
 
             return payload
 
         except Exception as error:
             if attempt == MAX_RETRIES:
-                message = str(error).replace(api_key, "[REDACTED]")
+                message = str(error).replace(
+                    api_key, "[REDACTED]"
+                )
                 raise RuntimeError(
-                    f"{commodity} request failed after {MAX_RETRIES} attempts: "
-                    f"{message}"
+                    f"Request at offset {offset} failed after "
+                    f"{MAX_RETRIES} attempts: {message}"
                 ) from None
 
             print(
-                f"  Retry {attempt}/{MAX_RETRIES} for {commodity}...",
+                f"  Retry {attempt}/{MAX_RETRIES} "
+                f"at offset {offset}...",
                 flush=True,
             )
             time.sleep(attempt * 3)
 
 
-def fetch_commodity(curl, api_key, commodity):
-    records = []
+def fetch_all_records(curl, api_key):
+    all_records = []
     offset = 0
-    total = None
+    expected_total = None
+    page_number = 0
 
-    print(f"\nFetching {commodity}...", flush=True)
+    print("\nFetching ALL available mandi records...", flush=True)
 
     while True:
-        payload = fetch_page(curl, api_key, commodity, offset)
+        payload = fetch_page(curl, api_key, offset)
         page_records = payload["records"]
 
         try:
-            total = int(payload.get("total", len(page_records)))
+            current_total = int(payload["total"])
         except (TypeError, ValueError):
-            total = None
+            raise RuntimeError(
+                "API returned an invalid total record count."
+            ) from None
 
-        records.extend(page_records)
+        if current_total < 0:
+            raise RuntimeError("API returned a negative total.")
+
+        if expected_total is None:
+            expected_total = current_total
+            print(
+                f"  API-reported total: {expected_total}",
+                flush=True,
+            )
+        elif current_total != expected_total:
+            raise RuntimeError(
+                "API total changed during pagination. "
+                "Snapshot not updated."
+            )
+
+        if len(page_records) > PAGE_SIZE:
+            raise RuntimeError(
+                "API returned more records than requested."
+            )
+
+        if len(page_records) > expected_total - offset:
+            raise RuntimeError(
+                "API returned more records than its reported total."
+            )
+
+        if not page_records and offset < expected_total:
+            raise RuntimeError(
+                f"Unexpected empty page at offset {offset}."
+            )
+
+        page_number += 1
+        all_records.extend(page_records)
 
         print(
-            f"  Downloaded {len(records)} records"
-            + (f" / {total}" if total is not None else ""),
+            f"  Page {page_number}: "
+            f"{len(page_records)} records | "
+            f"Downloaded {len(all_records)} / {expected_total}",
             flush=True,
         )
 
-        if not page_records:
+        if len(all_records) == expected_total:
             break
+
+        if not page_records:
+            raise RuntimeError(
+                "Pagination stopped before all records were fetched."
+            )
+
+        if len(page_records) < PAGE_SIZE:
+            raise RuntimeError(
+                "Incomplete final page received before expected total."
+            )
 
         offset += len(page_records)
 
-        if len(page_records) < PAGE_SIZE:
-            break
+    if len(all_records) != expected_total:
+        raise RuntimeError(
+            f"Incomplete download: received {len(all_records)} "
+            f"of {expected_total} records."
+        )
 
-        if total is not None and offset >= total:
-            break
-
-    return records
+    return all_records
 
 
 def main():
@@ -139,22 +196,27 @@ def main():
         print("ERROR: curl executable was not found.")
         sys.exit(1)
 
-    all_records = []
-    summary = {}
-
     try:
-        for commodity in COMMODITIES:
-            records = fetch_commodity(curl, api_key, commodity)
-            summary[commodity] = len(records)
-            all_records.extend(records)
+        all_records = fetch_all_records(curl, api_key)
 
     except Exception as error:
         print(f"\nERROR: {error}")
+        print("Existing snapshot preserved.")
         sys.exit(1)
 
     if not all_records:
-        print("\nERROR: No records received. Existing cache preserved.")
+        print("\nERROR: No records received.")
+        print("Existing snapshot preserved.")
         sys.exit(1)
+
+    commodity_counts = Counter(
+        str(record.get("commodity", "")).strip()
+        for record in all_records
+        if isinstance(record, dict)
+        and record.get("commodity")
+    )
+
+    summary = dict(sorted(commodity_counts.items()))
 
     snapshot = {
         "success": True,
@@ -165,25 +227,38 @@ def main():
         "records": all_records,
     }
 
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     temporary_file = OUTPUT_FILE.with_suffix(".tmp")
 
-    with temporary_file.open("w", encoding="utf-8") as file:
-        json.dump(
-            snapshot,
-            file,
-            ensure_ascii=False,
-            separators=(",", ":"),
-        )
+    try:
+        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-    temporary_file.replace(OUTPUT_FILE)
+        with temporary_file.open(
+            "w", encoding="utf-8"
+        ) as file:
+            json.dump(
+                snapshot,
+                file,
+                ensure_ascii=False,
+                separators=(",", ":"),
+            )
+            file.flush()
+            os.fsync(file.fileno())
 
-    print("\nSUCCESS: Mandi data snapshot created.")
+        temporary_file.replace(OUTPUT_FILE)
+
+    except Exception as error:
+        print(f"\nERROR: Could not save snapshot: {error}")
+        print("Existing snapshot preserved.")
+        sys.exit(1)
+
+    print("\nSUCCESS: Complete mandi snapshot created.")
     print(f"Total records: {len(all_records)}")
+    print(f"Unique commodities: {len(summary)}")
     print(f"File size: {OUTPUT_FILE.stat().st_size / 1024:.2f} KB")
     print(f"Output: {OUTPUT_FILE}")
 
-    for commodity, count in summary.items():
+    print("\nTop 20 commodities by record count:")
+    for commodity, count in commodity_counts.most_common(20):
         print(f"  {commodity}: {count}")
 
 

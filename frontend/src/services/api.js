@@ -61,3 +61,6 @@ export default api
 
 // ---- Official Mandi Market Prices ----
 export const getMarketPrices = (params = {}) => api.get('/market-prices/', { params })
+
+// ---- Dynamic Mandi Filters ----
+export const getMarketPriceFilters = (params = {}) => api.get('/market-prices/filters', { params })
