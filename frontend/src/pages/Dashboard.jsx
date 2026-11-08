@@ -1,10 +1,19 @@
-import { useLanguage } from '../context/LanguageContext'
+﻿import { useLanguage } from '../context/LanguageContext'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sprout, Droplets, Cloud, Bug, Brain, MapPin, Thermometer, Wind, Activity, Clock, MessageSquare } from 'lucide-react'
+import {
+  Sprout, Droplets, Cloud, Bug, Brain, MapPin,
+  Thermometer, Wind, Activity, MessageSquare,
+  ArrowUpRight, Leaf, Sun, CalendarDays, ChevronRight,
+  Wheat, CircleGauge
+} from 'lucide-react'
 import toast from 'react-hot-toast'
-import { getFarmProfile, getFarmSummary, getWeather, getInsights } from '../services/api'
-import { RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip } from 'recharts'
+import {
+  getFarmProfile, getFarmSummary, getWeather, getInsights
+} from '../services/api'
+import {
+  RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip
+} from 'recharts'
 
 export default function Dashboard() {
   const { t, language } = useLanguage()
@@ -26,7 +35,7 @@ export default function Dashboard() {
           getWeather().catch(() => null),
           getInsights().catch(() => null)
         ])
-        
+
         setData({
           profile: profileRes,
           summary: summaryRes,
@@ -42,140 +51,352 @@ export default function Dashboard() {
     fetchAllData()
   }, [])
 
+  const isHindi = language === 'hi'
+  const today = new Date()
+  const dateLabel = today.toLocaleDateString(isHindi ? 'hi-IN' : 'en-IN', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+
   if (loading) {
-    return <div className="flex h-96 items-center justify-center text-primary-400">{t('Loading Dashboard...', 'डैशबोर्ड लोड हो रहा है...')}</div>
+    return (
+      <div className="sf-loading">
+        <div className="sf-loading-mark"><Sprout size={28} /></div>
+        <p>{t('Preparing your farm dashboard...', 'आपका फार्म डैशबोर्ड तैयार हो रहा है...')}</p>
+      </div>
+    )
   }
 
   const npkData = data.summary?.soil_metrics ? [
-    { name: 'Nitrogen', value: data.summary.soil_metrics.nitrogen, fill: '#4ade80' },
-    { name: 'Phosphorus', value: data.summary.soil_metrics.phosphorus, fill: '#60a5fa' },
-    { name: 'Potassium', value: data.summary.soil_metrics.potassium, fill: '#f97316' }
+    { name: 'Nitrogen', value: data.summary.soil_metrics.nitrogen, fill: '#64834e' },
+    { name: 'Phosphorus', value: data.summary.soil_metrics.phosphorus, fill: '#c28a4b' },
+    { name: 'Potassium', value: data.summary.soil_metrics.potassium, fill: '#668b9b' }
   ] : []
 
+  const modules = [
+    {
+      path: '/crops', icon: Sprout, number: '01',
+      title: 'Crop Advisory', hindi: 'फसल सलाह',
+      desc: 'Discover crops suited to your soil and season.',
+      descHi: 'अपनी मिट्टी और मौसम के अनुसार फसल चुनें।',
+      image: '/images/crop-wheat.jpg', tone: 'green'
+    },
+    {
+      path: '/disease', icon: Bug, number: '02',
+      title: 'Plant Health', hindi: 'फसल रोग पहचान',
+      desc: 'Identify crop diseases and explore solutions.',
+      descHi: 'फसल के रोग पहचानें और समाधान जानें।',
+      image: '/images/crop-rice.jpg', tone: 'rust'
+    },
+    {
+      path: '/irrigation', icon: Droplets, number: '03',
+      title: 'Smart Irrigation', hindi: 'स्मार्ट सिंचाई',
+      desc: 'Make better decisions about water usage.',
+      descHi: 'पानी के बेहतर उपयोग के लिए सलाह पाएँ।',
+      image: '/images/dashboard-hero.jpg', tone: 'blue'
+    },
+    {
+      path: '/weather', icon: Cloud, number: '04',
+      title: 'Weather Intelligence', hindi: 'मौसम जानकारी',
+      desc: 'Plan farm activities with weather insights.',
+      descHi: 'मौसम की जानकारी से खेती की योजना बनाएँ।',
+      image: '/images/crop-mustard.jpg', tone: 'gold'
+    },
+    {
+      path: '/insights', icon: Brain, number: '05',
+      title: 'Farm Intelligence', hindi: 'AI खेती विश्लेषण',
+      desc: 'Understand your farm through useful analytics.',
+      descHi: 'खेती के आँकड़ों से उपयोगी जानकारी पाएँ।',
+      image: '/images/crop-wheat.jpg', tone: 'green'
+    },
+    {
+      path: '/chat', icon: MessageSquare, number: '06',
+      title: 'Farm Assistant', hindi: 'कृषि सहायक',
+      desc: 'Get answers to your agriculture questions.',
+      descHi: 'खेती से जुड़े सवालों के जवाब पाएँ।',
+      image: '/images/crop-rice.jpg', tone: 'blue'
+    }
+  ]
+
+  const stats = [
+    {
+      icon: Thermometer,
+      label: t('Temperature', 'तापमान'),
+      value: data.weather?.current?.temperature ?? '--',
+      unit: '°C',
+      note: t('Current conditions', 'वर्तमान स्थिति'),
+      tone: 'warm'
+    },
+    {
+      icon: Droplets,
+      label: t('Humidity', 'नमी'),
+      value: data.weather?.current?.humidity ?? '--',
+      unit: '%',
+      note: t('Air moisture', 'हवा में नमी'),
+      tone: 'blue'
+    },
+    {
+      icon: Cloud,
+      label: t('Weather', 'मौसम'),
+      value: data.weather?.current?.condition || '--',
+      unit: '',
+      note: t('Today', 'आज का मौसम'),
+      tone: 'sage'
+    },
+    {
+      icon: Activity,
+      label: t('Farm Health', 'खेत का स्वास्थ्य'),
+      value: data.insights?.farm_health_score ?? '--',
+      unit: data.insights?.farm_health_score != null ? '/100' : '',
+      note: t('AI assessment', 'AI विश्लेषण'),
+      tone: 'gold'
+    }
+  ]
+
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+    <main className="sf-dashboard">
+
+      {/* Welcome heading */}
+      <header className="sf-page-heading">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">{t('Farm Dashboard', 'खेत का डैशबोर्ड')}</h1>
-          <p className="text-gray-400 text-sm">{new Date().toLocaleDateString()}</p>
+          <div className="sf-eyebrow">
+            <span className="sf-eyebrow-line" />
+            SMARTFARM AI · FARM MANAGEMENT
+          </div>
+          <h1>{t('Your farm, in good hands.', 'आपकी खेती, हमारी समझ।')}</h1>
+          <p>{t('A clearer picture of your farm, every day.', 'आपके खेत की हर जरूरी जानकारी, एक ही जगह।')}</p>
         </div>
-      </div>
+        <div className="sf-date">
+          <CalendarDays size={16} />
+          <span>{dateLabel}</span>
+        </div>
+      </header>
 
-      {/* Farmer Profile */}
-      <div className="glass-card p-6 flex flex-col md:flex-row gap-6 items-start md:items-center">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-500 to-emerald-700 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
-          {data.profile?.farmer_name?.charAt(0) || 'F'}
+      {/* Main visual hero */}
+      <section className="sf-hero">
+        <img className="sf-hero-image" src="/images/dashboard-hero.jpg" alt="Indian agricultural fields" />
+        <div className="sf-hero-shade" />
+        <div className="sf-hero-content">
+          <span className="sf-hero-overline">
+            <Leaf size={14} /> {t('ROOTED IN THE LAND · GUIDED BY INTELLIGENCE', 'मिट्टी से जुड़ाव · तकनीक का साथ')}
+          </span>
+          <h2>
+            {isHindi
+              ? <>बेहतर खेती की<br /><em>शुरुआत यहीं से।</em></>
+              : <>Grow with wisdom.<br /><em>Harvest with confidence.</em></>}
+          </h2>
+          <p>
+            {t(
+              'Bring soil, weather and crop insights together to make every farming decision count.',
+              'मिट्टी, मौसम और फसल की जानकारी को समझें और खेती के हर फैसले को बेहतर बनाएँ।'
+            )}
+          </p>
+          <button className="sf-hero-button" onClick={() => navigate('/crops')}>
+            {t('Explore crop advisory', 'फसल सलाह देखें')}
+            <ArrowUpRight size={17} />
+          </button>
         </div>
-        <div className="flex-1">
-          <h2 className="text-xl font-bold text-white">{data.profile?.farmer_name || 'Demo Farmer'}</h2>
-          <div className="flex items-center gap-2 text-gray-400 text-sm mt-1">
-            <MapPin className="w-4 h-4" /> {data.profile?.location || 'Location not set'}
-          </div>
+        <div className="sf-hero-stamp">
+          <Sprout size={22} />
+          <span>{t('SMART FARMING', 'स्मार्ट खेती')}</span>
+          <strong>01 / 06</strong>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full md:w-auto">
-          <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-            <div className="text-xs text-gray-400">{t('Farm Area', 'खेत का क्षेत्रफल')}</div>
-            <div className="font-semibold text-white">{data.profile?.area_acres || 0} Acres</div>
-          </div>
-          <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-            <div className="text-xs text-gray-400">{t('Current Crop', 'वर्तमान फसल')}</div>
-            <div className="font-semibold text-primary-400">{data.profile?.current_crop || 'None'}</div>
-          </div>
-          <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-            <div className="text-xs text-gray-400">{t('Soil Type', 'मिट्टी का प्रकार')}</div>
-            <div className="font-semibold text-earth-300">{data.profile?.soil_type || 'Unknown'}</div>
-          </div>
-          <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-            <div className="text-xs text-gray-400">{t('Health Score', 'स्वास्थ्य स्कोर')}</div>
-            <div className="font-semibold text-blue-400">{data.profile?.soil_health_score || 0}/100</div>
-          </div>
-        </div>
-      </div>
+      </section>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="metric-card">
-          <div className="flex justify-between items-start">
-            <Thermometer className="w-6 h-6 text-orange-400" />
-            <span className="text-xs text-gray-500">{t('Current', 'अभी')}</span>
+      {/* Farm identity */}
+      <section className="sf-farm-identity">
+        <div className="sf-farmer-avatar">
+          {(data.profile?.farmer_name?.charAt(0) || 'F').toUpperCase()}
+        </div>
+        <div className="sf-farmer-details">
+          <span className="sf-small-label">{t('YOUR FARM PROFILE', 'आपकी खेती की पहचान')}</span>
+          <h2>{data.profile?.farmer_name || 'Demo Farmer'}</h2>
+          <p><MapPin size={14} /> {data.profile?.location || t('Location not set', 'स्थान दर्ज नहीं है')}</p>
+        </div>
+        <div className="sf-farm-facts">
+          <div>
+            <span>{t('FARM AREA', 'खेत का क्षेत्रफल')}</span>
+            <strong>{data.profile?.area_acres || 0} <small>Acres</small></strong>
           </div>
-          <div className="mt-4">
-            <div className="text-2xl font-bold text-white">{data.weather?.current?.temperature || '--'}°C</div>
-            <div className="text-sm text-gray-400">{t('Temperature', 'तापमान')}</div>
+          <div>
+            <span>{t('CURRENT CROP', 'वर्तमान फसल')}</span>
+            <strong>{data.profile?.current_crop || '--'}</strong>
+          </div>
+          <div>
+            <span>{t('SOIL TYPE', 'मिट्टी का प्रकार')}</span>
+            <strong>{data.profile?.soil_type || '--'}</strong>
+          </div>
+          <div>
+            <span>{t('SOIL HEALTH', 'मिट्टी का स्वास्थ्य')}</span>
+            <strong>{data.profile?.soil_health_score ?? '--'}<small>/100</small></strong>
           </div>
         </div>
-        <div className="metric-card">
-          <div className="flex justify-between items-start">
-            <Droplets className="w-6 h-6 text-blue-400" />
-            <span className="text-xs text-gray-500">{t('Current', 'अभी')}</span>
-          </div>
-          <div className="mt-4">
-            <div className="text-2xl font-bold text-white">{data.weather?.current?.humidity || '--'}%</div>
-            <div className="text-sm text-gray-400">{t('Humidity', 'नमी')}</div>
-          </div>
-        </div>
-        <div className="metric-card">
-          <div className="flex justify-between items-start">
-            <Cloud className="w-6 h-6 text-sky-400" />
-            <span className="text-xs text-gray-500">{t('Today', 'आज')}</span>
-          </div>
-          <div className="mt-4">
-            <div className="text-lg font-bold text-white truncate">{data.weather?.current?.condition || '--'}</div>
-            <div className="text-sm text-gray-400">{t('Weather', 'मौसम')}</div>
-          </div>
-        </div>
-        <div className="metric-card border-primary-500/30">
-          <div className="flex justify-between items-start">
-            <Activity className="w-6 h-6 text-primary-400" />
-            <span className="text-xs text-primary-500">{t('AI Analyzed', 'AI द्वारा विश्लेषित')}</span>
-          </div>
-          <div className="mt-4">
-            <div className="text-2xl font-bold text-white">{data.insights?.farm_health_score || '--'}/100</div>
-            <div className="text-sm text-gray-400">{t('Farm Health', 'खेत का स्वास्थ्य')}</div>
-          </div>
-        </div>
-      </div>
+      </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* NPK Chart */}
-        <div className="glass-card p-6 lg:col-span-1">
-          <h3 className="font-semibold text-white mb-4">{t('Soil Nutrients (NPK)', 'मिट्टी के पोषक तत्व (NPK)')}</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadialBarChart cx="50%" cy="50%" innerRadius="30%" outerRadius="100%" barSize={15} data={npkData}>
-                <RadialBar minAngle={15} background clockWise dataKey="value" />
-                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px' }} />
-                <Legend iconSize={10} layout="horizontal" verticalAlign="bottom" wrapperStyle={{ fontSize: '12px' }}/>
-              </RadialBarChart>
-            </ResponsiveContainer>
+      {/* Live conditions */}
+      <section className="sf-section">
+        <div className="sf-section-heading">
+          <div>
+            <span className="sf-small-label">{t('FIELD CONDITIONS', 'खेत की वर्तमान स्थिति')}</span>
+            <h2>{t('Your farm at a glance', 'एक नज़र में आपका खेत')}</h2>
           </div>
+          <span className="sf-live-label"><span /> {t('LATEST DATA', 'नवीनतम डेटा')}</span>
         </div>
-
-        {/* Action Modules */}
-        <div className="glass-card p-6 lg:col-span-2">
-          <h3 className="font-semibold text-white mb-4">{t('AI Modules', 'AI सुविधाएँ')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              { path: '/crops', icon: Sprout, label: 'Crop Recommendation', labelHi: 'फसल की सलाह', desc: 'AI suggests best crops', descHi: 'AI बेहतर फसल सुझाता है', color: 'text-green-400' },
-              { path: '/disease', icon: Bug, label: 'Disease Detection', labelHi: 'रोग की पहचान', desc: 'Scan leaves for disease', descHi: 'पत्तों में रोग की जाँच करें', color: 'text-red-400' },
-              { path: '/irrigation', icon: Droplets, label: 'Smart Irrigation', labelHi: 'स्मार्ट सिंचाई', desc: 'Optimize water usage', descHi: 'पानी का सही उपयोग करें', color: 'text-blue-400' },
-              { path: '/weather', icon: Cloud, label: 'Weather Intel', labelHi: 'मौसम जानकारी', desc: 'Farm-specific forecasts', descHi: 'खेत के अनुसार मौसम पूर्वानुमान', color: 'text-sky-400' },
-              { path: '/insights', icon: Brain, label: 'AI Insights', labelHi: 'AI खेती विश्लेषण', desc: 'Actionable farm analytics', descHi: 'खेती के लिए उपयोगी विश्लेषण', color: 'text-purple-400' },
-              { path: '/chat', icon: MessageSquare, label: 'Farm Assistant', labelHi: 'खेती सहायक', desc: 'Ask agriculture questions', descHi: 'खेती से जुड़े सवाल पूछें', color: 'text-yellow-400' }
-            ].map((mod, i) => (
-              <button key={i} onClick={() => navigate(mod.path)} className="flex items-start gap-4 p-4 rounded-xl bg-gray-800/40 border border-gray-700 hover:border-gray-500 transition-all text-left">
-                <div className={`p-2 rounded-lg bg-gray-900 ${mod.color}`}>
-                  <mod.icon className="w-6 h-6" />
+        <div className="sf-stat-grid">
+          {stats.map((stat) => {
+            const Icon = stat.icon
+            return (
+              <article className={`sf-stat-card ${stat.tone}`} key={stat.label}>
+                <div className="sf-stat-top">
+                  <span className="sf-stat-icon"><Icon size={20} /></span>
+                  <span className="sf-stat-label">{stat.label}</span>
                 </div>
-                <div>
-                  <div className="font-semibold text-white">{language === 'hi' ? mod.labelHi : mod.label}</div>
-                  <div className="text-xs text-gray-400">{language === 'hi' ? mod.descHi : mod.desc}</div>
+                <div className="sf-stat-value">
+                  {stat.value}<small>{stat.unit}</small>
                 </div>
+                <div className="sf-stat-note">{stat.note}</div>
+              </article>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Crop gallery */}
+      <section className="sf-crop-feature">
+        <div className="sf-section-heading">
+          <div>
+            <span className="sf-small-label">{t('A LAND OF POSSIBILITIES', 'फसलों की समृद्ध दुनिया')}</span>
+            <h2>{t('Rooted in Indian agriculture', 'भारतीय खेती की पहचान')}</h2>
+          </div>
+          <button className="sf-text-link" onClick={() => navigate('/crops')}>
+            {t('Explore crops', 'फसलें देखें')} <ChevronRight size={16} />
+          </button>
+        </div>
+        <div className="sf-crop-grid">
+          <button className="sf-crop-card crop-large" onClick={() => navigate('/crops')}>
+            <img src="/images/crop-wheat.jpg" alt="Wheat crop" />
+            <span className="sf-crop-shade" />
+            <span className="sf-crop-copy">
+              <small>01 · RABI CROP</small>
+              <strong>{t('Wheat', 'गेहूं')}</strong>
+              <span>{t('The golden harvest', 'सुनहरी फसल')}</span>
+            </span>
+          </button>
+          <button className="sf-crop-card" onClick={() => navigate('/crops')}>
+            <img src="/images/crop-rice.jpg" alt="Rice crop" />
+            <span className="sf-crop-shade" />
+            <span className="sf-crop-copy">
+              <small>02 · KHARIF CROP</small>
+              <strong>{t('Rice', 'धान')}</strong>
+              <span>{t('The staple harvest', 'अन्न का आधार')}</span>
+            </span>
+          </button>
+          <button className="sf-crop-card" onClick={() => navigate('/crops')}>
+            <img src="/images/crop-mustard.jpg" alt="Mustard crop" />
+            <span className="sf-crop-shade" />
+            <span className="sf-crop-copy">
+              <small>03 · OILSEED</small>
+              <strong>{t('Mustard', 'सरसों')}</strong>
+              <span>{t('Fields of gold', 'पीले फूलों की बहार')}</span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      {/* Soil and NPK */}
+      <section className="sf-analysis-grid">
+        <article className="sf-analysis-panel">
+          <div className="sf-section-heading">
+            <div>
+              <span className="sf-small-label">{t('SOIL INTELLIGENCE', 'मिट्टी का विश्लेषण')}</span>
+              <h2>{t('Nutrient balance', 'पोषक तत्वों का संतुलन')}</h2>
+            </div>
+            <span className="sf-panel-icon"><Wheat size={19} /></span>
+          </div>
+          {npkData.length > 0 ? (
+            <>
+              <div className="sf-npk-chart">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadialBarChart cx="50%" cy="47%" innerRadius="28%" outerRadius="88%" barSize={13} data={npkData}>
+                    <RadialBar minAngle={12} background clockWise dataKey="value" cornerRadius={4} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#fffdf8',
+                        border: '1px solid #e4dccb',
+                        borderRadius: '6px',
+                        color: '#29382d'
+                      }}
+                    />
+                    <Legend
+                      iconSize={9}
+                      layout="horizontal"
+                      verticalAlign="bottom"
+                      wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
+                    />
+                  </RadialBarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="sf-panel-footnote">{t('Based on your available soil metrics.', 'आपके उपलब्ध मिट्टी के आँकड़ों पर आधारित।')}</p>
+            </>
+          ) : (
+            <div className="sf-empty-state">
+              <CircleGauge size={30} />
+              <p>{t('Soil nutrient data is not available yet.', 'मिट्टी के पोषक तत्वों का डेटा अभी उपलब्ध नहीं है।')}</p>
+            </div>
+          )}
+        </article>
+
+        <article className="sf-soil-story">
+          <img src="/images/kisan-farmer-optimized.jpg" alt="Farmer in agricultural field" />
+          <div className="sf-soil-story-overlay" />
+          <div className="sf-soil-story-content">
+            <span>{t('GOOD FARMING BEGINS UNDERFOOT', 'अच्छी खेती की शुरुआत मिट्टी से')}</span>
+            <h2>{t('Know your soil. Nurture your land.', 'मिट्टी को समझें। अपनी जमीन सँवारें।')}</h2>
+            <p>{t('Healthy soil is the foundation of a healthy harvest.', 'स्वस्थ मिट्टी ही अच्छी पैदावार की नींव है।')}</p>
+          </div>
+        </article>
+      </section>
+
+      {/* AI tools */}
+      <section className="sf-modules-section">
+        <div className="sf-section-heading">
+          <div>
+            <span className="sf-small-label">{t('TOOLS FOR BETTER FARMING', 'बेहतर खेती के उपयोगी साधन')}</span>
+            <h2>{t('Your farm, intelligently supported.', 'आपकी खेती के लिए स्मार्ट सहयोग।')}</h2>
+            <p>{t('Everything you need to make informed decisions.', 'खेती के सही फैसलों के लिए जरूरी सुविधाएँ।')}</p>
+          </div>
+        </div>
+        <div className="sf-module-grid">
+          {modules.map((mod) => {
+            const Icon = mod.icon
+            return (
+              <button
+                key={mod.path}
+                className={`sf-module-card ${mod.tone}`}
+                onClick={() => navigate(mod.path)}
+              >
+                <div className="sf-module-top">
+                  <span className="sf-module-number">{mod.number}</span>
+                  <span className="sf-module-icon"><Icon size={21} /></span>
+                </div>
+                <div className="sf-module-copy">
+                  <h3>{isHindi ? mod.hindi : mod.title}</h3>
+                  <p>{isHindi ? mod.descHi : mod.desc}</p>
+                </div>
+                <span className="sf-module-arrow"><ArrowUpRight size={18} /></span>
               </button>
-            ))}
-          </div>
+            )
+          })}
         </div>
-      </div>
-    </div>
+      </section>
+
+      <footer className="sf-dashboard-footer">
+        <Sprout size={17} />
+        <span>{t('Growing a better tomorrow, one field at a time.', 'हर खेत के साथ, बेहतर कल की ओर।')}</span>
+        <span className="sf-footer-brand">SMARTFARM AI</span>
+      </footer>
+    </main>
   )
 }

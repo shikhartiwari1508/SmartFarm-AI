@@ -1,14 +1,38 @@
-import { useLanguage } from '../context/LanguageContext'
-import { useState, useEffect } from 'react'
-import { Droplets, Loader2, CheckCircle, XCircle, AlertTriangle, Clock, Leaf, Thermometer, CloudRain, Wind, RefreshCw } from 'lucide-react'
+﻿import { useState } from 'react'
+import {
+  Droplets, Loader2, CheckCircle, XCircle, AlertTriangle,
+  Clock, Leaf, Thermometer, CloudRain, Wind, RefreshCw,
+  Sprout, Gauge, ArrowRight, ShieldCheck, Sun
+} from 'lucide-react'
 import toast from 'react-hot-toast'
-import { getIrrigationRecommendation, getIrrigationCrops } from '../services/api'
+import { useLanguage } from '../context/LanguageContext'
+import { getIrrigationRecommendation } from '../services/api'
 
 const URGENCY_CONFIG = {
-  None: { color: 'text-green-400', bg: 'bg-green-900/20', border: 'border-green-700/40', label: 'No Irrigation Needed', icon: CheckCircle },
-  Low: { color: 'text-yellow-400', bg: 'bg-yellow-900/20', border: 'border-yellow-700/40', label: 'Low Urgency', icon: AlertTriangle },
-  Medium: { color: 'text-orange-400', bg: 'bg-orange-900/20', border: 'border-orange-700/40', label: 'Moderate Urgency', icon: AlertTriangle },
-  High: { color: 'text-red-400', bg: 'bg-red-900/20', border: 'border-red-700/40', label: 'Urgent!', icon: XCircle },
+  None: {
+    label: 'No Irrigation Needed',
+    hindi: 'अभी सिंचाई की आवश्यकता नहीं',
+    icon: CheckCircle,
+    className: 'irrigation-status-none',
+  },
+  Low: {
+    label: 'Low Urgency',
+    hindi: 'कम प्राथमिकता',
+    icon: AlertTriangle,
+    className: 'irrigation-status-low',
+  },
+  Medium: {
+    label: 'Moderate Urgency',
+    hindi: 'मध्यम प्राथमिकता',
+    icon: AlertTriangle,
+    className: 'irrigation-status-medium',
+  },
+  High: {
+    label: 'Urgent Irrigation',
+    hindi: 'तुरंत सिंचाई आवश्यक',
+    icon: XCircle,
+    className: 'irrigation-status-high',
+  },
 }
 
 const INITIAL_FORM = {
@@ -35,28 +59,97 @@ const CROP_STAGES = {
   Sugarcane: ['Germination', 'Tillering', 'Grand Growth', 'Maturity'],
 }
 
-function SliderInput({ label, name, value, min, max, unit, icon: Icon, color, onChange }) {
+const CROP_LABELS = {
+  Wheat: 'गेहूं', Rice: 'धान', Maize: 'मक्का',
+  Cotton: 'कपास', Tomato: 'टमाटर', Potato: 'आलू',
+  Groundnut: 'मूंगफली', Soybean: 'सोयाबीन',
+  Chickpea: 'चना', Mustard: 'सरसों',
+  Onion: 'प्याज', Sugarcane: 'गन्ना',
+}
+
+const STAGE_LABELS = {
+  Germination: 'अंकुरण',
+  Vegetative: 'विकास अवस्था',
+  Flowering: 'फूल आने की अवस्था',
+  'Grain Fill': 'दाना भरने की अवस्था',
+  Maturity: 'परिपक्वता',
+  Transplanting: 'रोपाई',
+  Tillering: 'कल्ले निकलना',
+  Tasseling: 'नर मंजरी अवस्था',
+  Boll: 'टिंडा अवस्था',
+  Fruiting: 'फल आने की अवस्था',
+  Emergence: 'अंकुर निकलना',
+  'Tuber Init': 'कंद बनना',
+  Bulking: 'कंद विकास',
+  Pegging: 'पेगिंग अवस्था',
+  'Pod Fill': 'फली भरना',
+  Establishment: 'स्थापना अवस्था',
+  'Bulb Dev': 'बल्ब विकास',
+  'Grand Growth': 'तेज वृद्धि',
+}
+
+function SliderInput({
+  label,
+  hindi,
+  name,
+  value,
+  min,
+  max,
+  unit,
+  icon: Icon,
+  color,
+  description,
+  onChange,
+}) {
+  const progress = ((value - min) / (max - min)) * 100
+
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <label className="input-label flex items-center gap-2">
-          <Icon className={`w-4 h-4 ${color}`} />
-          {label}
-        </label>
-        <span className={`text-sm font-bold ${color}`}>{value}{unit}</span>
+    <div className="irrigation-slider-field">
+      <div className="irrigation-slider-top">
+        <div className="irrigation-slider-label">
+          <span className={`irrigation-slider-icon ${color}`}>
+            <Icon size={18} />
+          </span>
+          <div>
+            <label htmlFor={`irrigation-${name}`}>{label}</label>
+            <span>{hindi}</span>
+          </div>
+        </div>
+        <div className="irrigation-slider-value">
+          {value}<small>{unit}</small>
+        </div>
       </div>
+
       <input
+        id={`irrigation-${name}`}
         type="range"
         name={name}
         min={min}
         max={max}
         value={value}
         onChange={onChange}
-        className="w-full accent-green-500 cursor-pointer"
+        className="irrigation-range"
+        style={{ '--range-progress': `${progress}%` }}
       />
-      <div className="flex justify-between text-xs text-gray-600">
+
+      <div className="irrigation-slider-bottom">
         <span>{min}{unit}</span>
+        <span>{description}</span>
         <span>{max}{unit}</span>
+      </div>
+    </div>
+  )
+}
+
+function MetricCard({ icon: Icon, label, value, unit, tone }) {
+  return (
+    <div className={`irrigation-metric-card ${tone}`}>
+      <div className="irrigation-metric-icon">
+        <Icon size={20} />
+      </div>
+      <span className="irrigation-metric-label">{label}</span>
+      <div className="irrigation-metric-value">
+        {value}<small>{unit}</small>
       </div>
     </div>
   )
@@ -64,6 +157,8 @@ function SliderInput({ label, name, value, min, max, unit, icon: Icon, color, on
 
 export default function SmartIrrigation() {
   const { t, language } = useLanguage()
+  const isHindi = language === 'hi'
+
   const [form, setForm] = useState(INITIAL_FORM)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
@@ -73,10 +168,15 @@ export default function SmartIrrigation() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+
     setForm(prev => ({
       ...prev,
-      [name]: ['crop_type', 'growth_stage'].includes(name) ? value : parseFloat(value),
-      ...(name === 'crop_type' ? { growth_stage: (CROP_STAGES[value] || ['Vegetative'])[0] } : {})
+      [name]: ['crop_type', 'growth_stage'].includes(name)
+        ? value
+        : parseFloat(value),
+      ...(name === 'crop_type'
+        ? { growth_stage: (CROP_STAGES[value] || ['Vegetative'])[0] }
+        : {}),
     }))
   }
 
@@ -84,160 +184,401 @@ export default function SmartIrrigation() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+
     try {
       const data = await getIrrigationRecommendation(form)
       setResult(data)
-      toast.success('Irrigation recommendation ready!')
-    } catch (e) {
-      setError(e.message)
-      toast.error('Failed: ' + e.message)
+      toast.success(isHindi ? 'सिंचाई की सलाह तैयार है!' : 'Irrigation recommendation ready!')
+    } catch (err) {
+      setError(err.message || 'Something went wrong')
+      toast.error((isHindi ? 'समस्या: ' : 'Failed: ') + (err.message || 'Please try again'))
     } finally {
       setLoading(false)
     }
   }
 
-  const cfg = result ? (URGENCY_CONFIG[result.urgency] || URGENCY_CONFIG.None) : null
+  const resetForm = () => {
+    setForm(INITIAL_FORM)
+    setResult(null)
+    setError(null)
+  }
+
+  const cfg = result
+    ? (URGENCY_CONFIG[result.urgency] || URGENCY_CONFIG.None)
+    : null
+
   const UrgencyIcon = cfg?.icon || CheckCircle
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-10 h-10 bg-blue-900/40 border border-blue-700/40 rounded-xl flex items-center justify-center">
-          <Droplets className="w-5 h-5 text-blue-400" />
-        </div>
+    <main className="irrigation-studio">
+
+      <header className="irrigation-page-heading">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">{t('Smart Irrigation', 'स्मार्ट सिंचाई')}</h1>
-          <p className="text-gray-400 text-sm">{t('AI-powered water requirement recommendation for your crops', 'आपकी फसलों के लिए AI आधारित पानी की आवश्यकता की सलाह')}</p>
+          <div className="irrigation-eyebrow">
+            <span />
+            {t('SMART WATER MANAGEMENT', 'स्मार्ट जल प्रबंधन')}
+          </div>
+          <h1>
+            {t('Smart Irrigation', 'स्मार्ट सिंचाई')}
+            <span className="irrigation-heading-mark">.</span>
+          </h1>
+          <p>
+            {t(
+              'Give every crop the right amount of water, at the right time.',
+              'हर फसल को सही समय पर उसकी जरूरत के अनुसार पानी दें।'
+            )}
+          </p>
+        </div>
+
+        <div className="irrigation-heading-icon">
+          <Droplets size={30} />
+          <span>{t('WATER WISE', 'जल संरक्षण')}</span>
+        </div>
+      </header>
+
+      <section className="irrigation-hero">
+        <img
+          src="/images/dashboard-hero.jpg"
+          alt="Green agricultural field"
+          className="irrigation-hero-image"
+        />
+        <div className="irrigation-hero-overlay" />
+        <div className="irrigation-hero-content">
+          <span className="irrigation-hero-kicker">
+            <Sprout size={15} />
+            {t('A HEALTHIER FIELD STARTS HERE', 'बेहतर खेती की शुरुआत')}
+          </span>
+          <h2>
+            {t('Every drop has a purpose.', 'हर बूंद कीमती है।')}
+          </h2>
+          <p>
+            {t(
+              'Understand your field conditions and make informed irrigation decisions for healthier crops.',
+              'अपने खेत की स्थिति समझें और बेहतर फसल के लिए सोच-समझकर सिंचाई का निर्णय लें।'
+            )}
+          </p>
+        </div>
+        <div className="irrigation-hero-note">
+          <Droplets size={18} />
+          <span>{t('Smart water. Strong harvest.', 'सही पानी, बेहतर पैदावार।')}</span>
+        </div>
+      </section>
+
+      <div className="irrigation-section-intro">
+        <div>
+          <span className="irrigation-section-kicker">
+            {t('FIELD ASSESSMENT', 'खेत का आकलन')}
+          </span>
+          <h2>{t('Tell us about your field', 'अपने खेत की जानकारी दें')}</h2>
+          <p>
+            {t(
+              'Adjust the conditions below to receive a tailored recommendation.',
+              'सही सलाह पाने के लिए नीचे खेत की स्थितियां चुनें।'
+            )}
+          </p>
+        </div>
+        <div className="irrigation-step-indicator">
+          <span>01</span>
+          <div />
+          <span>02</span>
+          <small>{t('CONDITIONS / ADVICE', 'स्थिति / सलाह')}</small>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="glass-card p-6 space-y-5">
-          <h2 className="font-semibold text-gray-200 text-sm uppercase tracking-wider">{t('Field Conditions', 'खेत की स्थिति')}</h2>
+      <div className="irrigation-workspace">
 
-          {/* Sliders */}
-          <SliderInput label="Soil Moisture" name="soil_moisture" value={form.soil_moisture}
-            min={0} max={100} unit="%" icon={Droplets} color="text-blue-400" onChange={handleChange} />
-          <SliderInput label="Temperature" name="temperature" value={form.temperature}
-            min={0} max={60} unit="°C" icon={Thermometer} color="text-orange-400" onChange={handleChange} />
-          <SliderInput label="Humidity" name="humidity" value={form.humidity}
-            min={0} max={100} unit="%" icon={Wind} color="text-sky-400" onChange={handleChange} />
-          <SliderInput label="Recent Rainfall" name="rainfall" value={form.rainfall}
-            min={0} max={200} unit="mm" icon={CloudRain} color="text-indigo-400" onChange={handleChange} />
-
-          {/* Crop & Stage */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="input-label flex items-center gap-2">
-                <Leaf className="w-4 h-4 text-primary-400" /> Crop Type
-              </label>
-              <select name="crop_type" value={form.crop_type} onChange={handleChange} className="input-field">
-                {Object.keys(CROP_STAGES).map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+        <form onSubmit={handleSubmit} className="irrigation-form-panel">
+          <div className="irrigation-panel-heading">
+            <div className="irrigation-panel-icon">
+              <Gauge size={21} />
             </div>
             <div>
-              <label className="input-label">{t('Growth Stage', 'विकास की अवस्था')}</label>
-              <select name="growth_stage" value={form.growth_stage} onChange={handleChange} className="input-field">
-                {stages.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
+              <h3>{t('Field Conditions', 'खेत की स्थिति')}</h3>
+              <p>{t('Current environmental readings', 'वर्तमान वातावरण की जानकारी')}</p>
+            </div>
+            <span className="irrigation-panel-number">01</span>
+          </div>
+
+          <div className="irrigation-slider-list">
+            <SliderInput
+              label="Soil Moisture"
+              hindi="मिट्टी की नमी"
+              name="soil_moisture"
+              value={form.soil_moisture}
+              min={0}
+              max={100}
+              unit="%"
+              icon={Droplets}
+              color="blue"
+              description={t('Moisture level', 'नमी का स्तर')}
+              onChange={handleChange}
+            />
+
+            <SliderInput
+              label="Temperature"
+              hindi="तापमान"
+              name="temperature"
+              value={form.temperature}
+              min={0}
+              max={60}
+              unit="°C"
+              icon={Thermometer}
+              color="orange"
+              description={t('Air temperature', 'हवा का तापमान')}
+              onChange={handleChange}
+            />
+
+            <SliderInput
+              label="Humidity"
+              hindi="हवा में नमी"
+              name="humidity"
+              value={form.humidity}
+              min={0}
+              max={100}
+              unit="%"
+              icon={Wind}
+              color="sky"
+              description={t('Relative humidity', 'सापेक्ष आर्द्रता')}
+              onChange={handleChange}
+            />
+
+            <SliderInput
+              label="Recent Rainfall"
+              hindi="हाल की वर्षा"
+              name="rainfall"
+              value={form.rainfall}
+              min={0}
+              max={200}
+              unit="mm"
+              icon={CloudRain}
+              color="indigo"
+              description={t('Rain received', 'हुई वर्षा')}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="irrigation-form-divider" />
+
+          <div className="irrigation-crop-section">
+            <div className="irrigation-subsection-heading">
+              <Leaf size={18} />
+              <div>
+                <h4>{t('Crop Information', 'फसल की जानकारी')}</h4>
+                <p>{t('Select your crop and its current stage', 'फसल और उसकी वर्तमान अवस्था चुनें')}</p>
+              </div>
+            </div>
+
+            <div className="irrigation-select-grid">
+              <div className="irrigation-select-field">
+                <label htmlFor="irrigation-crop">
+                  {t('Crop Type', 'फसल का प्रकार')}
+                </label>
+                <select
+                  id="irrigation-crop"
+                  name="crop_type"
+                  value={form.crop_type}
+                  onChange={handleChange}
+                  className="irrigation-select"
+                >
+                  {Object.keys(CROP_STAGES).map(crop => (
+                    <option key={crop} value={crop}>
+                      {isHindi ? (CROP_LABELS[crop] || crop) : crop}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="irrigation-select-field">
+                <label htmlFor="irrigation-stage">
+                  {t('Growth Stage', 'विकास की अवस्था')}
+                </label>
+                <select
+                  id="irrigation-stage"
+                  name="growth_stage"
+                  value={form.growth_stage}
+                  onChange={handleChange}
+                  className="irrigation-select"
+                >
+                  {stages.map(stage => (
+                    <option key={stage} value={stage}>
+                      {isHindi ? (STAGE_LABELS[stage] || stage) : stage}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
-          <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
-            {loading ? <><Loader2 className="w-4 h-4 animate-spin" />{t('Calculating...', 'गणना हो रही है...')}</> : <><Droplets className="w-4 h-4" />{t('Get Irrigation Recommendation', 'सिंचाई की सलाह लें')}</>}
-          </button>
+          <div className="irrigation-form-footer">
+            <div className="irrigation-form-assurance">
+              <ShieldCheck size={17} />
+              <span>{t('Your field data stays within this recommendation.', 'आपकी जानकारी सलाह तैयार करने के लिए उपयोग होगी।')}</span>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="irrigation-submit-button"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={19} className="animate-spin" />
+                  {t('Calculating...', 'गणना हो रही है...')}
+                </>
+              ) : (
+                <>
+                  <Droplets size={19} />
+                  {t('Get Irrigation Advice', 'सिंचाई की सलाह पाएं')}
+                  <ArrowRight size={18} />
+                </>
+              )}
+            </button>
+          </div>
         </form>
 
-        {/* Result */}
-        <div>
+        <section className="irrigation-results-column">
+          <div className="irrigation-results-heading">
+            <div>
+              <span>{t('YOUR FARM REPORT', 'आपकी खेत रिपोर्ट')}</span>
+              <h3>{t('Irrigation Advice', 'सिंचाई की सलाह')}</h3>
+            </div>
+            <span className="irrigation-report-number">02</span>
+          </div>
+
           {!result && !loading && (
-            <div className="glass-card p-8 text-center h-full flex flex-col items-center justify-center gap-4">
-              <div className="w-20 h-20 bg-blue-900/20 border border-blue-700/20 rounded-full flex items-center justify-center">
-                <Droplets className="w-10 h-10 text-blue-600" />
+            <div className="irrigation-empty-state">
+              <div className="irrigation-empty-illustration">
+                <div className="irrigation-empty-circle">
+                  <Droplets size={43} />
+                </div>
+                <span className="irrigation-empty-leaf"><Leaf size={23} /></span>
+                <span className="irrigation-empty-sun"><Sun size={22} /></span>
               </div>
-              <p className="text-gray-400">{t('Set your field conditions and get an instant irrigation recommendation.', 'खेत की स्थिति भरें और तुरंत सिंचाई की सलाह पाएँ।')}</p>
+              <span className="irrigation-empty-kicker">
+                {t('WAITING FOR FIELD DATA', 'खेत की जानकारी का इंतजार')}
+              </span>
+              <h3>{t('Your field, understood.', 'आपके खेत की जरूरत समझें।')}</h3>
+              <p>
+                {t(
+                  'Set your field conditions and we will prepare a practical irrigation recommendation.',
+                  'खेत की स्थिति चुनें और हम आपके लिए सिंचाई की सलाह तैयार करेंगे।'
+                )}
+              </p>
+              <div className="irrigation-empty-hint">
+                <ArrowRight size={16} />
+                {t('Complete the field assessment to continue', 'आगे बढ़ने के लिए खेत की जानकारी भरें')}
+              </div>
             </div>
           )}
 
           {loading && (
-            <div className="glass-card p-8 text-center h-full flex flex-col items-center justify-center gap-4">
-              <Loader2 className="w-10 h-10 text-blue-400 animate-spin" />
-              <p className="text-white">{t('Calculating water requirements...', 'पानी की आवश्यकता की गणना हो रही है...')}</p>
+            <div className="irrigation-loading-state">
+              <div className="irrigation-loading-icon">
+                <Droplets size={35} />
+                <span />
+              </div>
+              <h3>{t('Reading your field conditions...', 'खेत की स्थिति समझी जा रही है...')}</h3>
+              <p>{t('Preparing your irrigation recommendation', 'सिंचाई की सलाह तैयार हो रही है')}</p>
+              <div className="irrigation-loading-bar"><span /></div>
             </div>
           )}
 
           {result && !loading && (
-            <div className="space-y-4 animate-slide-up">
-              {/* Main Decision Card */}
-              <div className={`rounded-2xl p-6 border ${cfg.border} ${cfg.bg}`}>
-                <div className="flex items-center gap-3 mb-4">
-                  <UrgencyIcon className={`w-8 h-8 ${cfg.color}`} />
-                  <div>
-                    <div className={`text-2xl font-display font-bold ${cfg.color}`}>
-                      {result.irrigation_required ? '💧 Irrigation Required' : '✅ No Irrigation Needed'}
-                    </div>
-                    <div className={`text-sm ${cfg.color} opacity-80`}>{cfg.label}</div>
+            <div className="irrigation-report">
+              <div className={`irrigation-decision-card ${cfg.className}`}>
+                <div className="irrigation-decision-top">
+                  <div className="irrigation-decision-icon">
+                    <UrgencyIcon size={26} />
                   </div>
+                  <span className="irrigation-decision-tag">
+                    {t('FIELD DECISION', 'खेत का निर्णय')}
+                  </span>
                 </div>
-                <p className="text-gray-300 text-sm">{result.reason}</p>
+
+                <h3>
+                  {result.irrigation_required
+                    ? t('Irrigation Required', 'सिंचाई आवश्यक है')
+                    : t('No Irrigation Needed', 'अभी सिंचाई की जरूरत नहीं')}
+                </h3>
+                <p className="irrigation-decision-hindi">
+                  {isHindi ? cfg.hindi : cfg.label}
+                </p>
+                <p className="irrigation-decision-reason">{result.reason}</p>
               </div>
 
-              {/* Metrics Row */}
               {result.irrigation_required && (
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="glass-card p-4 text-center">
-                    <div className="text-3xl font-display font-bold text-blue-400">{result.recommended_amount_mm}</div>
-                    <div className="text-xs text-gray-400 mt-1">{t('mm Water Required', 'मिमी पानी आवश्यक')}</div>
-                  </div>
-                  <div className="glass-card p-4 text-center">
-                    <div className="text-3xl font-display font-bold text-orange-400">{result.next_check_hours}h</div>
-                    <div className="text-xs text-gray-400 mt-1">{t('Next Check', 'अगली जाँच')}</div>
-                  </div>
+                <div className="irrigation-metrics-grid">
+                  <MetricCard
+                    icon={Droplets}
+                    label={t('Recommended Water', 'अनुशंसित पानी')}
+                    value={result.recommended_amount_mm ?? '—'}
+                    unit=" mm"
+                    tone="water"
+                  />
+                  <MetricCard
+                    icon={Clock}
+                    label={t('Next Moisture Check', 'अगली जांच')}
+                    value={result.next_check_hours ?? '—'}
+                    unit=" hrs"
+                    tone="time"
+                  />
                 </div>
               )}
 
-              {/* Method */}
-              <div className="glass-card p-4 flex items-start gap-3">
-                <Droplets className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <div className="irrigation-advice-card">
+                <div className="irrigation-advice-icon"><Droplets size={19} /></div>
                 <div>
-                  <div className="text-sm font-medium text-gray-200 mb-1">{t('Recommended Method', 'सुझाया गया तरीका')}</div>
-                  <div className="text-sm text-gray-400">{result.method_suggestion}</div>
+                  <span>{t('RECOMMENDED METHOD', 'सुझाया गया तरीका')}</span>
+                  <h4>{result.method_suggestion || t('Follow local agricultural guidance', 'स्थानीय कृषि सलाह का पालन करें')}</h4>
                 </div>
               </div>
 
-              {/* Next Check */}
-              <div className="glass-card p-4 flex items-start gap-3">
-                <Clock className="w-5 h-5 text-primary-400 flex-shrink-0 mt-0.5" />
+              <div className="irrigation-advice-card">
+                <div className="irrigation-advice-icon irrigation-clock-icon"><Clock size={19} /></div>
                 <div>
-                  <div className="text-sm font-medium text-gray-200 mb-1">{t('Next Moisture Check', 'मिट्टी की नमी की अगली जाँच')}</div>
-                  <div className="text-sm text-gray-400">{t('Check soil moisture again in', 'मिट्टी की नमी दोबारा जाँचें,')} <span className="text-primary-400 font-semibold">{result.next_check_hours} hours</span></div>
+                  <span>{t('NEXT SOIL CHECK', 'मिट्टी की अगली जांच')}</span>
+                  <h4>
+                    {t('Check again in', 'दोबारा जांचें')} {result.next_check_hours ?? '—'} {t('hours', 'घंटे')}
+                  </h4>
                 </div>
               </div>
 
-              {/* Water Saving Tip */}
-              <div className="bg-primary-900/20 border border-primary-700/30 rounded-xl p-4 flex items-start gap-3">
-                <span className="text-lg">💡</span>
+              <div className="irrigation-saving-tip">
+                <div className="irrigation-tip-icon">✦</div>
                 <div>
-                  <div className="text-sm font-medium text-primary-300 mb-1">{t('Water Saving Tip', 'पानी बचाने की सलाह')}</div>
-                  <div className="text-sm text-gray-300">{result.water_saving_tip}</div>
+                  <span>{t('WATER CONSERVATION NOTE', 'जल संरक्षण की सलाह')}</span>
+                  <h4>{t('A little care saves more water.', 'थोड़ी सावधानी, पानी की बचत।')}</h4>
+                  <p>{result.water_saving_tip || t('Monitor soil moisture regularly.', 'मिट्टी की नमी की नियमित जांच करें।')}</p>
                 </div>
               </div>
 
-              <button onClick={() => setResult(null)} className="btn-secondary w-full">
-                <RefreshCw className="w-4 h-4" /> Try Different Conditions
+              <button
+                type="button"
+                onClick={resetForm}
+                className="irrigation-reset-button"
+              >
+                <RefreshCw size={17} />
+                {t('Check Different Conditions', 'दूसरी स्थिति की जांच करें')}
               </button>
             </div>
           )}
 
           {error && (
-            <div className="glass-card p-4 border border-red-700/40">
-              <p className="text-red-400 text-sm">{error}</p>
+            <div className="irrigation-error">
+              <AlertTriangle size={20} />
+              <div>
+                <strong>{t('Unable to prepare recommendation', 'सलाह तैयार नहीं हो सकी')}</strong>
+                <p>{error}</p>
+              </div>
             </div>
           )}
-        </div>
+        </section>
       </div>
-    </div>
+
+      <footer className="irrigation-page-footer">
+        <span><Leaf size={16} /> {t('SMART FARMING • RESPONSIBLE WATER USE', 'स्मार्ट खेती • जिम्मेदार जल उपयोग')}</span>
+        <span>{t('Better decisions begin with better information.', 'बेहतर जानकारी से बेहतर निर्णय।')}</span>
+      </footer>
+    </main>
   )
 }

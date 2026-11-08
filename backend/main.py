@@ -1,4 +1,4 @@
-﻿"""
+"""
 SmartFarm AI - FastAPI Backend
 Main application entry point
 """
@@ -20,6 +20,7 @@ from backend.routers import (
     farm,
     insights,
     market_prices,
+    kisan_avatar,
 )
 from backend.config import settings
 
@@ -65,6 +66,7 @@ app.include_router(chat.router, prefix="/api/chat", tags=["AI Assistant"])
 app.include_router(farm.router, prefix="/api/farm", tags=["Farm Management"])
 app.include_router(insights.router, prefix="/api/insights", tags=["AI Insights"])
 app.include_router(market_prices.router, prefix="/api/market-prices", tags=["Mandi Market Prices"])
+app.include_router(kisan_avatar.router, prefix="/api/kisan", tags=["Kisan Avatar"])
 
 
 @app.get("/", tags=["Health"])

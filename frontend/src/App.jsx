@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+﻿import { Routes, Route } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import CropRecommendation from './pages/CropRecommendation'
@@ -8,6 +8,7 @@ import WeatherDashboard from './pages/WeatherDashboard'
 import ChatAssistant from './pages/ChatAssistant'
 import AIInsights from './pages/AIInsights'
 import MarketPrices from './pages/MarketPrices'
+import KisanAvatar from './pages/KisanAvatar'
 import Layout from './components/Layout'
 import { LanguageProvider } from './context/LanguageContext'
 
@@ -24,9 +25,11 @@ export default function App() {
         <Route path="/weather" element={<WeatherDashboard />} />
         <Route path="/chat" element={<ChatAssistant />} />
         <Route path="/insights" element={<AIInsights />} />
+        <Route path="/kisan-avatar" element={<KisanAvatar />} />
         <Route path="/market-prices" element={<MarketPrices />} />
       </Route>
     </Routes>
     </LanguageProvider>
   )
 }
+

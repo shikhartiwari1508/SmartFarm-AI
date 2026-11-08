@@ -1,19 +1,26 @@
-import { useLanguage } from '../context/LanguageContext'
+﻿import { useLanguage } from '../context/LanguageContext'
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Upload, Bug, AlertTriangle, CheckCircle, XCircle, ImageIcon, Loader2, RefreshCw, ShieldAlert, Leaf } from 'lucide-react'
+import {
+  Upload, Bug, AlertTriangle, CheckCircle, XCircle,
+  ImageIcon, Loader2, RefreshCw, ShieldAlert, Leaf,
+  Sprout, ScanSearch, Camera, Microscope, ArrowRight,
+  ClipboardCheck, ShieldCheck, Info, Activity
+} from 'lucide-react'
 import toast from 'react-hot-toast'
 import { detectDisease } from '../services/api'
 
 const SEVERITY_CONFIG = {
-  None: { color: 'text-green-400', bg: 'bg-green-900/20', border: 'border-green-700/40', badge: 'badge-success' },
-  Low: { color: 'text-yellow-400', bg: 'bg-yellow-900/20', border: 'border-yellow-700/40', badge: 'badge-warning' },
-  Medium: { color: 'text-orange-400', bg: 'bg-orange-900/20', border: 'border-orange-700/40', badge: 'badge-warning' },
-  High: { color: 'text-red-400', bg: 'bg-red-900/20', border: 'border-red-700/40', badge: 'badge-danger' },
+  None: { className: 'severity-none', label: 'Healthy', hindi: 'स्वस्थ' },
+  Low: { className: 'severity-low', label: 'Low severity', hindi: 'कम गंभीरता' },
+  Medium: { className: 'severity-medium', label: 'Medium severity', hindi: 'मध्यम गंभीरता' },
+  High: { className: 'severity-high', label: 'High severity', hindi: 'अधिक गंभीरता' },
 }
 
 export default function DiseaseDetection() {
   const { t, language } = useLanguage()
+  const isHindi = language === 'hi'
+
   const [file, setFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -22,277 +29,512 @@ export default function DiseaseDetection() {
 
   const onDrop = useCallback((accepted, rejected) => {
     if (rejected.length > 0) {
-      toast.error('Invalid file. Please upload a JPG, PNG or WebP image under 5MB.')
+      toast.error(t(
+        'Invalid image. Use JPG, PNG or WebP under 5 MB.',
+        'गलत इमेज। 5 MB से छोटी JPG, PNG या WebP फोटो चुनें।'
+      ))
       return
     }
-    const f = accepted[0]
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
+
+    const selectedFile = accepted[0]
+    if (!selectedFile) return
+
+    setFile(selectedFile)
+    setPreview(URL.createObjectURL(selectedFile))
     setResult(null)
     setError(null)
-  }, [])
+  }, [t])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'image/*': ['.jpg', '.jpeg', '.png', '.webp'] },
+    accept: {
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/png': ['.png'],
+      'image/webp': ['.webp'],
+    },
     maxSize: 5 * 1024 * 1024,
     multiple: false,
   })
 
   const handleAnalyze = async () => {
-    if (!file) { toast.error('Please upload a leaf image first.'); return }
+    if (!file) {
+      toast.error(t('Please upload a leaf image first.', 'पहले पत्ते की फोटो अपलोड करें।'))
+      return
+    }
+
     setLoading(true)
     setError(null)
+
     try {
       const data = await detectDisease(file)
       setResult(data)
-      toast.success('Disease analysis complete!')
+      toast.success(t('Disease analysis complete!', 'रोग का विश्लेषण पूरा हुआ!'))
     } catch (e) {
-      setError(e.message)
-      toast.error('Analysis failed: ' + e.message)
+      setError(e.message || t('Something went wrong.', 'कुछ गलत हो गया।'))
+      toast.error(t('Disease analysis failed.', 'रोग का विश्लेषण नहीं हो सका।'))
     } finally {
       setLoading(false)
     }
   }
 
   const handleReset = () => {
+    if (preview) URL.revokeObjectURL(preview)
     setFile(null)
     setPreview(null)
     setResult(null)
     setError(null)
   }
 
-  const sev = result ? (SEVERITY_CONFIG[result.severity] || SEVERITY_CONFIG.Low) : null
+  const severity = result
+    ? (SEVERITY_CONFIG[result.severity] || SEVERITY_CONFIG.Low)
+    : null
+
+  const confidence = Math.max(
+    0,
+    Math.min(100, Number(result?.confidence) || 0)
+  )
+
+  const causes = Array.isArray(result?.causes) ? result.causes : []
+  const prevention = Array.isArray(result?.prevention) ? result.prevention : []
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-red-900/40 border border-red-700/40 rounded-xl flex items-center justify-center">
-            <Bug className="w-5 h-5 text-red-400" />
-          </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold text-white">{t('Disease Detection', 'फसल रोग पहचान')}</h1>
-            <p className="text-gray-400 text-sm">{t('Upload a crop/leaf photo for AI-powered disease analysis', 'AI से रोग की जाँच कराने के लिए फसल या पत्ते की फोटो अपलोड करें')}</p>
-          </div>
-        </div>
-        <div className="demo-badge mt-3">
-          <AlertTriangle className="w-3 h-3" />
-          Demo Mode — AI model integration ready. Predictions are simulated.
-        </div>
-      </div>
+    <main className="disease-studio">
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Upload Panel */}
-        <div className="space-y-4">
+      {/* Editorial heading */}
+      <header className="disease-heading">
+        <div>
+          <div className="disease-eyebrow">
+            <span />
+            SMARTFARM AI <i>·</i> PLANT HEALTH INTELLIGENCE
+          </div>
+
+          <h1>
+            {t('Protect your crops.', 'अपनी फसल बचाएँ।')}
+            <em>{t('Recognise the signs.', 'लक्षणों को पहचानें।')}</em>
+          </h1>
+
+          <p>
+            {t(
+              'Examine a leaf photograph and explore possible plant health concerns with your crop diagnosis assistant.',
+              'पत्ते की तस्वीर अपलोड करके फसल में संभावित रोगों और स्वास्थ्य संबंधी समस्याओं की जानकारी प्राप्त करें।'
+            )}
+          </p>
+        </div>
+
+        <div className="disease-heading-mark">
+          <Microscope size={25} />
+          <span>{t('PLANT HEALTH', 'पौधों का स्वास्थ्य')}</span>
+          <strong>02 / 06</strong>
+        </div>
+      </header>
+
+      {/* Visual hero */}
+      <section className="disease-hero">
+        <img
+          src="/images/crop-mustard.jpg"
+          alt="Agricultural crop field"
+          className="disease-hero-image"
+        />
+
+        <div className="disease-hero-content">
+          <span className="disease-hero-kicker">
+            <ScanSearch size={14} />
+            {t('EARLY DETECTION · BETTER PROTECTION', 'समय पर पहचान · बेहतर सुरक्षा')}
+          </span>
+
+          <h2>
+            {t(
+              'A healthier field begins with an attentive eye.',
+              'स्वस्थ खेत की शुरुआत सही पहचान से होती है।'
+            )}
+          </h2>
+
+          <p>
+            {t(
+              'Upload a clear photograph of an affected leaf to begin your plant health assessment.',
+              'प्रभावित पत्ते की साफ तस्वीर अपलोड करें और पौधे के स्वास्थ्य की जाँच शुरू करें।'
+            )}
+          </p>
+        </div>
+
+        <div className="disease-hero-stamp">
+          <Sprout size={32} />
+          <span>{t('HEALTHY CROPS', 'स्वस्थ फसल')}</span>
+        </div>
+      </section>
+
+      {/* Main workspace */}
+      <div className="disease-workspace">
+
+        {/* Upload panel */}
+        <section className="disease-panel">
+
+          <div className="disease-panel-heading">
+            <div className="disease-panel-icon">
+              <Camera size={21} />
+            </div>
+
+            <div>
+              <span className="disease-overline">
+                {t('STEP 01 · IMAGE SUBMISSION', 'चरण 01 · तस्वीर अपलोड')}
+              </span>
+
+              <h2>{t('Examine your crop', 'अपनी फसल की जाँच करें')}</h2>
+
+              <p>
+                {t(
+                  'Choose a clear photograph of the affected plant leaf.',
+                  'प्रभावित पौधे के पत्ते की साफ तस्वीर चुनें।'
+                )}
+              </p>
+            </div>
+          </div>
+
           <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-2xl p-8 cursor-pointer transition-all duration-200 text-center
-              ${isDragActive
-                ? 'border-primary-500 bg-primary-900/20'
-                : preview
-                  ? 'border-gray-700 bg-gray-800/30'
-                  : 'border-gray-700 bg-gray-800/20 hover:border-primary-600 hover:bg-primary-900/10'
-              }`}
+            className={`disease-dropzone ${isDragActive ? 'is-active' : ''} ${preview ? 'has-image' : ''}`}
           >
             <input {...getInputProps()} />
+
             {preview ? (
-              <div className="space-y-3">
+              <>
                 <img
                   src={preview}
-                  alt="Uploaded leaf"
-                  className="max-h-64 mx-auto rounded-xl object-contain shadow-lg"
+                  alt="Uploaded crop leaf"
+                  className="disease-preview-image"
                 />
-                <p className="text-gray-400 text-sm">{file?.name}</p>
-                <p className="text-xs text-gray-500">{t('Click or drag to replace', 'बदलने के लिए क्लिक करें या फ़ाइल खींचें')}</p>
-              </div>
+
+                <p className="disease-file-name">{file?.name}</p>
+
+                <p>
+                  {t(
+                    'Click or drop another image to replace this photograph.',
+                    'दूसरी तस्वीर चुनने के लिए यहाँ क्लिक करें।'
+                  )}
+                </p>
+              </>
             ) : (
-              <div className="space-y-4">
-                <div className="w-20 h-20 mx-auto bg-gray-700/50 rounded-2xl flex items-center justify-center">
-                  <ImageIcon className="w-10 h-10 text-gray-500" />
+              <>
+                <div className="disease-upload-icon">
+                  {isDragActive
+                    ? <Upload size={29} />
+                    : <ImageIcon size={29} />
+                  }
                 </div>
-                <div>
-                  <p className="text-white font-medium mb-1">
-                    {isDragActive ? 'Drop the image here!' : 'Drag & Drop a Leaf Photo'}
-                  </p>
-                  <p className="text-gray-400 text-sm">{t('or click to browse files', 'या फ़ाइल चुनने के लिए क्लिक करें')}</p>
-                  <p className="text-gray-600 text-xs mt-2">{t('Supports JPG, PNG, WebP · Max 5MB', 'JPG, PNG, WebP समर्थित · अधिकतम 5MB')}</p>
-                </div>
-              </div>
+
+                <h3>
+                  {isDragActive
+                    ? t('Release to upload', 'अपलोड करने के लिए छोड़ें')
+                    : t('Drop your leaf photograph here', 'पत्ते की फोटो यहाँ डालें')
+                  }
+                </h3>
+
+                <p>
+                  {t(
+                    'Or click to browse photographs from your device.',
+                    'या अपने डिवाइस से फोटो चुनने के लिए क्लिक करें।'
+                  )}
+                </p>
+
+                <small>
+                  JPG · PNG · WebP &nbsp; | &nbsp; {t('Maximum 5 MB', 'अधिकतम 5 MB')}
+                </small>
+              </>
             )}
           </div>
 
-          {/* Tips */}
-          <div className="glass-card p-4">
-            <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-              <Leaf className="w-4 h-4 text-primary-400" />
-              Photo Tips for Better Results
+          {/* Photography tips */}
+          <div className="disease-photo-tips">
+            <h3>
+              <Leaf size={16} />
+              {t('How to take a useful photograph', 'अच्छी फोटो कैसे लें')}
             </h3>
-            <ul className="space-y-1.5 text-xs text-gray-400">
+
+            <ul>
               {[
-                'Take close-up photo of affected leaf',
-                'Ensure good lighting — avoid shadows',
-                'Capture the full leaf including edges',
-                'Use the most affected leaf for diagnosis',
-              ].map((tip, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <CheckCircle className="w-3 h-3 text-primary-500 mt-0.5 flex-shrink-0" />
+                t('Capture the affected leaf closely.', 'प्रभावित पत्ते की पास से फोटो लें।'),
+                t('Use natural light and avoid shadows.', 'प्राकृतिक रोशनी में फोटो लें।'),
+                t('Keep the complete leaf visible.', 'पूरा पत्ता तस्वीर में दिखना चाहिए।'),
+                t('Choose a clear, focused photograph.', 'साफ और स्पष्ट फोटो चुनें।'),
+              ].map((tip, index) => (
+                <li key={index}>
+                  <CheckCircle size={14} />
                   {tip}
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3">
+          {/* Action buttons */}
+          <div className="disease-action-row">
             <button
+              type="button"
               onClick={handleAnalyze}
               disabled={!file || loading}
-              className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="disease-analyze-button"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Bug className="w-4 h-4" />
-                  Analyze Disease
-                </>
-              )}
+              {loading
+                ? <Loader2 size={18} className="animate-spin" />
+                : <ScanSearch size={18} />
+              }
+
+              <span>
+                {loading
+                  ? t('Examining your crop...', 'फसल की जाँच हो रही है...')
+                  : t('Analyse plant health', 'फसल के रोग की जाँच करें')
+                }
+              </span>
+
+              {!loading && <ArrowRight size={17} />}
             </button>
+
             {(file || result) && (
-              <button onClick={handleReset} className="btn-secondary px-4">
-                <RefreshCw className="w-4 h-4" />
+              <button
+                type="button"
+                onClick={handleReset}
+                className="disease-reset-button"
+                title={t('Start again', 'फिर से शुरू करें')}
+              >
+                <RefreshCw size={17} />
               </button>
             )}
           </div>
 
           {error && (
-            <div className="flex items-start gap-3 bg-red-900/20 border border-red-700/40 rounded-xl p-4">
-              <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="disease-error">
+              <XCircle size={19} />
               <div>
-                <p className="text-red-300 text-sm font-medium">{t('Analysis Failed', 'विश्लेषण विफल हुआ')}</p>
-                <p className="text-red-400/70 text-xs mt-1">{error}</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Results Panel */}
-        <div>
-          {loading && (
-            <div className="glass-card p-8 text-center space-y-4 h-full flex flex-col items-center justify-center">
-              <div className="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-red-400 animate-spin" />
-              </div>
-              <div>
-                <p className="text-white font-medium">{t('AI Analyzing Your Image', 'AI आपकी तस्वीर का विश्लेषण कर रहा है')}</p>
-                <p className="text-gray-400 text-sm mt-1">{t('Scanning for disease patterns...', 'रोग के संकेत खोजे जा रहे हैं...')}</p>
-              </div>
-              <div className="w-full max-w-xs space-y-2">
-                {['Preprocessing image', 'Extracting features', 'Running classification'].map((step, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-gray-500">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse" style={{ animationDelay: `${i * 0.3}s` }} />
-                    {step}
-                  </div>
-                ))}
+                <strong>{t('Analysis could not be completed', 'विश्लेषण पूरा नहीं हो सका')}</strong>
+                <div>{error}</div>
               </div>
             </div>
           )}
 
+        </section>
+
+        {/* Results panel */}
+        <section className="disease-results-panel">
+
+          <div className="disease-results-heading">
+            <div>
+              <span className="disease-overline">
+                {t('STEP 02 · DIAGNOSTIC REPORT', 'चरण 02 · जाँच रिपोर्ट')}
+              </span>
+
+              <h2>{t('Plant health report', 'पौधे के स्वास्थ्य की रिपोर्ट')}</h2>
+            </div>
+
+            <div className="disease-results-heading-icon">
+              <ClipboardCheck size={21} />
+            </div>
+          </div>
+
+          {/* Empty state */}
           {!loading && !result && (
-            <div className="glass-card p-8 text-center h-full flex flex-col items-center justify-center space-y-4">
-              <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center">
-                <ShieldAlert className="w-10 h-10 text-gray-600" />
+            <div className="disease-empty-state">
+              <div className="disease-empty-art">
+                <ShieldAlert size={47} />
               </div>
-              <div>
-                <p className="text-gray-300 font-medium">{t('No Analysis Yet', 'अभी कोई विश्लेषण नहीं हुआ')}</p>
-                <p className="text-gray-500 text-sm mt-1">{t('Upload a leaf photo and click Analyze', 'पत्ते की फोटो अपलोड करें और विश्लेषण पर क्लिक करें')}</p>
+
+              <span className="disease-overline">
+                {t('YOUR DIAGNOSTIC REPORT', 'आपकी जाँच रिपोर्ट')}
+              </span>
+
+              <h3>
+                {t('Your crop report will appear here.', 'आपकी फसल की रिपोर्ट यहाँ दिखाई देगी।')}
+              </h3>
+
+              <p>
+                {t(
+                  'Upload a leaf photograph and begin the analysis to view disease details and recommended actions.',
+                  'पत्ते की फोटो अपलोड करके जाँच शुरू करें। इसके बाद रोग की जानकारी और बचाव के सुझाव यहाँ मिलेंगे।'
+                )}
+              </p>
+
+              <div className="disease-empty-note">
+                <Info size={15} />
+                {t('Your crop assessment is waiting to begin.', 'आपकी फसल की जाँच शुरू होने की प्रतीक्षा में है।')}
               </div>
             </div>
           )}
 
+          {/* Loading state */}
+          {loading && (
+            <div className="disease-loading-state">
+              <div className="disease-loading-ring">
+                <ScanSearch size={28} />
+              </div>
+
+              <span className="disease-overline">
+                {t('SMART FARM DIAGNOSTICS', 'स्मार्ट फार्म जाँच')}
+              </span>
+
+              <h3>{t('Examining the leaf...', 'पत्ते की जाँच हो रही है...')}</h3>
+
+              <p>
+                {t(
+                  'Your image is being processed. Please wait while the diagnosis is prepared.',
+                  'आपकी तस्वीर का विश्लेषण किया जा रहा है। कृपया प्रतीक्षा करें।'
+                )}
+              </p>
+
+              <div className="disease-loading-track">
+                <span />
+              </div>
+            </div>
+          )}
+
+          {/* Diagnosis report */}
           {!loading && result && (
-            <div className="space-y-4 animate-slide-up">
-              {/* Main Result */}
-              <div className={`glass-card p-5 border ${sev.border}`}>
+            <div className="disease-report">
+
+              <article className={`disease-report-card ${severity.className}`}>
+
                 {result.is_demo && (
-                  <div className="demo-badge mb-3 text-xs">
-                    <AlertTriangle className="w-3 h-3" />
-                    Demo Prediction — Not a real AI diagnosis
+                  <div className="disease-demo-label">
+                    <AlertTriangle size={13} />
+                    {t('DEMO PREDICTION · NOT A CONFIRMED DIAGNOSIS', 'डेमो अनुमान · पक्की जाँच नहीं')}
                   </div>
                 )}
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h2 className="font-display text-xl font-bold text-white">{result.disease_name}</h2>
-                    <p className="text-gray-400 text-sm mt-0.5">{t('Disease Analysis Result', 'रोग विश्लेषण का परिणाम')}</p>
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold border ${sev.border} ${sev.color} ${sev.bg}`}>
-                    {result.severity === 'None' ? '✅ Healthy' : `⚠️ ${result.severity} Severity`}
+
+                <span className="disease-result-label">
+                  {result.severity === 'None'
+                    ? <CheckCircle size={15} />
+                    : <AlertTriangle size={15} />
+                  }
+
+                  {t('PLANT HEALTH FINDING', 'पौधे के स्वास्थ्य की जानकारी')}
+                </span>
+
+                <h3>{result.disease_name || t('Unknown condition', 'अज्ञात समस्या')}</h3>
+
+                <p>
+                  {result.description ||
+                    t('No additional description is available.', 'अतिरिक्त जानकारी उपलब्ध नहीं है।')
+                  }
+                </p>
+
+                <div className="disease-report-meta">
+                  <span>
+                    {t('Severity', 'गंभीरता')}: {isHindi ? severity.hindi : severity.label}
+                  </span>
+
+                  <span>
+                    {t('Confidence', 'विश्वास स्तर')}: {confidence}%
                   </span>
                 </div>
+              </article>
 
-                {/* Confidence Bar */}
-                <div className="mb-4">
-                  <div className="flex justify-between text-xs text-gray-400 mb-1.5">
-                    <span>{t('AI Confidence', 'AI का भरोसा स्तर')}</span>
-                    <span className={sev.color}>{result.confidence}%</span>
-                  </div>
-                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-1000 ${result.severity === 'None' ? 'bg-green-500' : result.severity === 'High' ? 'bg-red-500' : 'bg-yellow-500'}`}
-                      style={{ width: `${result.confidence}%` }}
-                    />
-                  </div>
+              {/* Confidence */}
+              <div className="disease-confidence">
+                <div className="disease-confidence-top">
+                  <span>{t('Analysis confidence', 'विश्लेषण का विश्वास स्तर')}</span>
+                  <strong>{confidence}%</strong>
                 </div>
 
-                <p className="text-gray-300 text-sm">{result.description}</p>
+                <div className="disease-confidence-track">
+                  <div
+                    className="disease-confidence-fill"
+                    style={{ width: `${confidence}%` }}
+                  />
+                </div>
               </div>
 
               {/* Causes */}
-              {result.causes?.length > 0 && (
-                <div className="glass-card p-4">
-                  <h3 className="font-semibold text-orange-300 mb-3 flex items-center gap-2 text-sm">
-                    <AlertTriangle className="w-4 h-4" /> Possible Causes
-                  </h3>
-                  <ul className="space-y-2">
-                    {result.causes.map((cause, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                        <span className="text-orange-400 font-bold mt-0.5">{i + 1}.</span>
-                        {cause}
+              {causes.length > 0 && (
+                <article className="disease-detail-card">
+                  <div className="disease-detail-heading">
+                    <span>
+                      <AlertTriangle size={16} />
+                    </span>
+                    <h4>{t('Possible causes', 'संभावित कारण')}</h4>
+                  </div>
+
+                  <ul className="disease-detail-list">
+                    {causes.map((cause, index) => (
+                      <li key={index}>
+                        <span>{String(index + 1).padStart(2, '0')}</span>
+                        <div>{cause}</div>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </article>
               )}
 
-              {/* Prevention */}
-              <div className="glass-card p-4">
-                <h3 className="font-semibold text-primary-300 mb-3 flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4" /> Recommended Actions
-                </h3>
-                <ul className="space-y-2">
-                  {result.prevention.map((action, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                      <CheckCircle className="w-4 h-4 text-primary-500 flex-shrink-0 mt-0.5" />
-                      {action}
-                    </li>
-                  ))}
-                </ul>
+              {/* Prevention and recommended actions */}
+              <article className="disease-detail-card">
+                <div className="disease-detail-heading">
+                  <span>
+                    <ShieldCheck size={17} />
+                  </span>
+                  <h4>{t('Recommended actions', 'सुझाए गए बचाव के उपाय')}</h4>
+                </div>
+
+                {prevention.length > 0 ? (
+                  <ul className="disease-detail-list">
+                    {prevention.map((action, index) => (
+                      <li key={index}>
+                        <CheckCircle size={15} />
+                        <div>{action}</div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="disease-empty-state">
+                    {t('No additional actions available.', 'अतिरिक्त उपाय उपलब्ध नहीं हैं।')}
+                  </p>
+                )}
+              </article>
+
+              {/* Next steps */}
+              {result.next_steps && (
+                <article className="disease-next-steps">
+                  <h4>
+                    <Activity size={16} />
+                    {t('What to do next', 'अब आगे क्या करें')}
+                  </h4>
+
+                  <p>{result.next_steps}</p>
+                </article>
+              )}
+
+              <div className="disease-report-footer">
+                <span>
+                  {t(
+                    'Verify serious symptoms with a local agriculture expert.',
+                    'गंभीर लक्षणों की पुष्टि स्थानीय कृषि विशेषज्ञ से करें।'
+                  )}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="disease-new-analysis"
+                >
+                  <RefreshCw size={14} />
+                  {t('New analysis', 'नई जाँच')}
+                </button>
               </div>
 
-              {/* Next Steps */}
-              <div className="bg-primary-900/20 border border-primary-700/30 rounded-xl p-4">
-                <h3 className="font-semibold text-primary-300 mb-2 text-sm">📋 Next Steps</h3>
-                <p className="text-gray-300 text-sm">{result.next_steps}</p>
-              </div>
             </div>
           )}
-        </div>
+
+        </section>
       </div>
-    </div>
+
+      <footer className="disease-page-footer">
+        <Sprout size={17} />
+
+        <span>
+          {t(
+            'Healthy plants today. Stronger harvests tomorrow.',
+            'आज स्वस्थ पौधे, कल बेहतर पैदावार।'
+          )}
+        </span>
+
+        <strong>SMARTFARM AI</strong>
+      </footer>
+
+    </main>
   )
 }
