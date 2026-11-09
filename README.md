@@ -409,8 +409,7 @@ Explore the SmartFarm-AI interface and its major modules.
 
 ### 🌱 Landing Page
 
-![SmartFarm AI Landing Page](<img width="1503" height="683" alt="Screenshot 2026-11-09 213326" src="https://github.com/user-attachments/assets/c26d8c88-cb40-4a81-b3fe-767c3a7f7f55" />
-)
+![SmartFarm AI Landing Page]("https://github.com/user-attachments/assets/c26d8c88-cb40-4a81-b3fe-767c3a7f7f55")
 
 ### 📊 Dashboard
 
