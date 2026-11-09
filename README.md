@@ -413,7 +413,7 @@ Explore the SmartFarm-AI interface and its major modules.
 
 ### 📊 Dashboard
 
-![SmartFarm AI Dashboard](https://github.com/user-attachments/assets/498b7f50-0ed5-4286-94ae-22336a015a75)
+![SmartFarm AI Dashboard](https://github.com/user-attachments/assets/33f52d51-620c-4e3d-a89b-25194252bea4)
 
 ### 🌾 Crop Recommendation
 
