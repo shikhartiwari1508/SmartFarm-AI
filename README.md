@@ -1,97 +1,234 @@
 # 🌱 SmartFarm-AI
 
-> **AI-Powered Smart Agriculture Platform for Smarter Farming Decisions**
+### AI-Powered Smart Agriculture Platform for Intelligent Farming Decisions
 
-SmartFarm-AI is a modern AI-powered agriculture platform designed to help farmers make better decisions using intelligent crop recommendations, disease detection, smart irrigation insights, weather information, and an AI farming assistant.
+<p align="center">
+  <strong>Empowering Farmers with Artificial Intelligence, Machine Learning & Smart Agricultural Technology.</strong>
+</p>
 
-The project combines a **FastAPI backend** with a **React + Vite frontend** to provide an interactive and user-friendly smart farming experience.
-
----
-  <p align="center">
-  <a href="https://smartfarmai-amber.vercel.app/"> Go to Website </a>
-
-## 🚀 Features
-
-### 🌾 Crop Recommendation
-
-Get crop recommendations based on important agricultural parameters such as:
-
-* Soil conditions
-* Nutrient levels
-* Season
-* Environmental factors
-
-### 🦠 Plant Disease Detection
-
-Upload a plant image and use the disease detection module to identify possible crop diseases and receive useful information.
-
-### 💧 Smart Irrigation
-
-Get irrigation recommendations based on crop and environmental conditions to support efficient water management.
-
-### 🌦️ Weather Dashboard
-
-View weather-related information useful for agricultural planning.
-
-### 🤖 AI Farm Assistant
-
-Ask agriculture-related questions about:
-
-* Crop selection
-* Plant diseases
-* Irrigation
-* Fertilizers
-* Weather
-* Farming practices
-
-The assistant provides AI-powered agricultural guidance through a conversational interface.
-
-### 📊 AI Insights
-
-Get useful farming insights and recommendations through the AI Insights module.
-
-### 🚜 Farm Management
-
-Manage farm-related information and view farm summaries through the dashboard.
+<p align="center">
+  <a href="https://smartfarmai-amber.vercel.app/">
+    <img src="https://img.shields.io/badge/🌱_Live_Demo-Visit_SmartFarm_AI-16A34A?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/shikhartiwari1508/SmartFarm-AI">
+    <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github" />
+  </a>
+  <a href="https://smartfarm-ai-p3md.onrender.com/docs">
+    <img src="https://img.shields.io/badge/API-FastAPI-009688?style=for-the-badge&logo=fastapi" />
+  </a>
+</p>
 
 ---
 
-## 🛠️ Tech Stack
+## 🌾 About The Project
+
+**SmartFarm-AI** is an intelligent, AI-powered agriculture platform designed to make modern farming smarter, more accessible, and data-driven.
+
+The platform brings together Artificial Intelligence, Machine Learning, agricultural insights, weather information, and interactive farming tools to help farmers make informed decisions throughout their farming journey.
+
+From selecting suitable crops and identifying potential plant diseases to managing irrigation, exploring mandi prices, and interacting with an AI-powered virtual farming assistant, SmartFarm-AI aims to bring multiple agricultural solutions together in one unified platform.
+
+Built with a modern **React + Vite frontend** and a **Python FastAPI backend**, the application provides an interactive and multilingual smart farming experience.
+
+<p align="center">
+  <a href="https://smartfarmai-amber.vercel.app/">
+    <strong>🚀 Explore SmartFarm-AI Live →</strong>
+  </a>
+</p>
+
+---
+
+## ✨ Key Features
+
+### 🌾 1. AI Crop Recommendation
+
+Make smarter crop selection decisions using agricultural parameters.
+
+- Soil-related parameters
+- Nitrogen, Phosphorus and Potassium (NPK) levels
+- Soil pH
+- Environmental conditions
+- Seasonal considerations
+- Intelligent crop recommendations
+
+### 🦠 2. Plant Disease Detection
+
+An AI-powered module designed to help identify possible plant diseases through image-based analysis.
+
+- Upload plant images
+- Analyze visible disease symptoms
+- Identify potential plant health issues
+- Access relevant disease information
+- Get useful guidance for crop care
+
+### 💧 3. Smart Irrigation
+
+Support efficient water management with intelligent irrigation insights.
+
+- Crop-based irrigation recommendations
+- Environmental condition analysis
+- Weather-related considerations
+- Water management guidance
+- Smart irrigation insights
+
+### 🌦️ 4. Weather Dashboard
+
+Access weather-related information to support agricultural planning.
+
+- Weather information
+- Temperature insights
+- Rainfall-related information
+- Humidity and environmental conditions
+- Weather-based farming considerations
+
+### 🤖 5. AI Farm Assistant
+
+An agriculture-focused conversational AI assistant that helps users explore farming-related questions.
+
+Ask questions about:
+
+- Crop selection
+- Plant diseases
+- Fertilizers and soil health
+- Irrigation management
+- Weather conditions
+- Agricultural practices
+
+Get conversational AI-powered farming guidance through an interactive interface.
+
+### 🧑‍🌾 6. AI Kisan Avatar
+
+Meet the next generation of agricultural assistance through an interactive virtual farmer experience.
+
+AI Kisan Avatar is designed to make AI-powered agricultural guidance more natural and accessible.
+
+**Supported Languages:**
+- 🇮🇳 Hindi
+- 🇬🇧 English
+- 🗣️ Bhojpuri
+
+Key capabilities:
+
+- Interactive virtual farmer interface
+- AI-powered agricultural conversations
+- Voice input using browser speech recognition
+- Text-to-speech responses
+- Multilingual farming assistance
+- Natural conversational interaction
+
+The goal is to make modern AI technology accessible to farmers through a familiar and easy-to-use experience.
+
+### 📈 7. Mandi Market Prices
+
+Explore agricultural market-price information through the mandi module.
+
+- Commodity-based filtering
+- State and district filters
+- Market-wise price information
+- Minimum and maximum price details
+- Modal and market data exploration
+- Cached market-data support
+
+Designed to help users explore agricultural market trends and make more informed selling decisions.
+
+### 📊 8. AI Insights
+
+Explore useful farming insights and recommendations through a dedicated AI Insights module.
+
+- Agricultural insights
+- Farming recommendations
+- Data-driven information
+- Decision-support features
+
+### 🚜 9. Farm Management
+
+A centralized module for managing farm-related information.
+
+- Farm profile management
+- Farm summaries
+- Agricultural information
+- Centralized dashboard experience
+
+### 🌐 10. Multilingual User Experience
+
+SmartFarm-AI is designed with multilingual accessibility in mind.
+
+- Hindi interface
+- English interface
+- Language switching
+- Agriculture-focused user experience
+
+---
+
+## 🖥️ Application Modules
+
+| Module | Description |
+|---|---|
+| 🌾 Crop Recommendation | Intelligent crop selection |
+| 🦠 Disease Detection | Image-based plant disease analysis |
+| 💧 Smart Irrigation | Irrigation recommendations |
+| 🌦️ Weather Dashboard | Agricultural weather information |
+| 🤖 AI Farm Assistant | Conversational farming assistance |
+| 🧑‍🌾 AI Kisan Avatar | Multilingual voice-enabled virtual farmer |
+| 📈 Mandi Prices | Agricultural market-price exploration |
+| 📊 AI Insights | Farming insights and recommendations |
+| 🚜 Farm Management | Farm profile and summaries |
+| 📱 Dashboard | Centralized application overview |
+
+---
+
+## 🛠️ Technology Stack
 
 ### Frontend
 
-* React
-* Vite
-* Tailwind CSS
-* Axios
-* React Markdown
-* Lucide React
+- React.js
+- Vite
+- Tailwind CSS
+- JavaScript
+- Axios
+- React Markdown
+- Lucide React
+- Web Speech API
 
 ### Backend
 
-* Python
-* FastAPI
-* Uvicorn
-* Pydantic
-* SQLAlchemy
-* SQLite
+- Python
+- FastAPI
+- Uvicorn
+- Pydantic
+- SQLAlchemy
+- SQLite
 
-### Machine Learning
+### Artificial Intelligence & Machine Learning
 
-* NumPy
-* Scikit-learn
-* Pillow
+- Google Gemini API
+- NumPy
+- Scikit-learn
+- Pillow
+- Machine Learning-based agricultural modules
+- AI-powered conversational assistance
 
-### Development Tools
+### Data & Agricultural Services
 
-* Git
-* GitHub
-* VS Code
-* Google Antigravity
+- AGMARKNET / data.gov.in market data
+- Cached mandi data snapshots
+- Agricultural datasets
+- Weather information services
+
+### Development & Deployment
+
+- Git
+- GitHub
+- Visual Studio Code
+- Google Antigravity
+- Vercel
+- Render
 
 ---
 
-## 📂 Project Structure
+## 🏗️ Project Architecture
+
+SmartFarm-AI follows a modular full-stack architecture.
 
 ```text
 SmartFarm-AI/
@@ -100,6 +237,16 @@ SmartFarm-AI/
 │   ├── ml/
 │   ├── models/
 │   ├── routers/
+│   │   ├── crops.py
+│   │   ├── disease.py
+│   │   ├── irrigation.py
+│   │   ├── weather.py
+│   │   ├── chat.py
+│   │   ├── farm.py
+│   │   ├── insights.py
+│   │   ├── market_prices.py
+│   │   └── kisan_avatar.py
+│   │
 │   ├── schemas/
 │   ├── config.py
 │   ├── database.py
@@ -110,17 +257,21 @@ SmartFarm-AI/
 │   ├── public/
 │   ├── src/
 │   │   ├── components/
+│   │   ├── context/
 │   │   ├── pages/
 │   │   ├── services/
 │   │   ├── App.jsx
 │   │   └── index.css
+│   │
 │   ├── package.json
 │   ├── vite.config.js
 │   └── tailwind.config.js
 │
 ├── data/
 ├── models/
+├── scripts/
 ├── uploads/
+│
 ├── .env.example
 ├── .gitignore
 ├── start.bat
@@ -131,62 +282,92 @@ SmartFarm-AI/
 
 ## ⚙️ Installation & Setup
 
-### 1. Clone the repository
+Follow these steps to run SmartFarm-AI locally.
+
+### Prerequisites
+
+Make sure you have installed:
+
+- Python 3.12
+- Node.js and npm
+- Git
+- VS Code (recommended)
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/shikhartiwari1508/SmartFarm-AI.git
+
 cd SmartFarm-AI
 ```
 
-### 2. Create Python virtual environment
+### 2. Create a Python Virtual Environment
 
-```bash
+```powershell
 python -m venv .venv
 ```
 
-Activate it on Windows:
+Activate the environment:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-### 3. Install backend dependencies
+### 3. Install Backend Dependencies
 
-```bash
+```powershell
 python -m pip install -r backend\requirements.txt
 ```
 
-### 4. Start the FastAPI backend
+### 4. Configure Environment Variables
 
-```bash
+Create the required environment configuration using `.env.example` as a reference.
+
+Add your own API credentials and application settings where required.
+
+**Important:** Never upload real API keys, passwords, or private environment files to GitHub.
+
+### 5. Start the Backend Server
+
+From the project root directory:
+
+```powershell
 python -m uvicorn backend.main:app --reload
 ```
 
-Backend will run at:
+Backend URL:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-API documentation:
+FastAPI Swagger Documentation:
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
----
-
-## 💻 Frontend Setup
+### 6. Start the Frontend
 
 Open another terminal:
 
 ```powershell
 cd frontend
+```
+
+Install frontend dependencies:
+
+```powershell
 npm install
+```
+
+Start the development server:
+
+```powershell
 npm run dev
 ```
 
-Frontend will be available at:
+Frontend URL:
 
 ```text
 http://localhost:5173
@@ -194,139 +375,140 @@ http://localhost:5173
 
 ---
 
-## 🔗 API Modules
+## 🔗 Backend API Modules
 
-SmartFarm-AI provides APIs for:
+SmartFarm-AI provides REST API endpoints for its different agricultural modules.
 
-```text
-/api/crops/recommend
-/api/crops/crops-list
-/api/disease/predict
-/api/irrigation/recommend
-/api/irrigation/crops
-/api/weather/
-/api/chat/
-/api/farm/profile
-/api/farm/summary
-/api/insights/
-/api/health
-```
+| API Endpoint | Purpose |
+|---|---|
+| `/api/health` | Backend health check |
+| `/api/crops/recommend` | Crop recommendations |
+| `/api/crops/crops-list` | Available crops |
+| `/api/disease/predict` | Plant disease analysis |
+| `/api/irrigation/recommend` | Irrigation recommendations |
+| `/api/irrigation/crops` | Irrigation crop information |
+| `/api/weather/` | Weather information |
+| `/api/chat/` | AI Farm Assistant |
+| `/api/farm/profile` | Farm profile |
+| `/api/farm/summary` | Farm summary |
+| `/api/insights/` | Agricultural insights |
+| `/api/kisan/health` | AI Kisan Avatar health |
+| `/api/kisan/chat` | AI Kisan Avatar conversation |
 
-FastAPI Swagger documentation is available at:
+Additional market-price APIs are available through the market-prices router.
 
-```text
-http://127.0.0.1:8000/docs
-```
+Explore the available endpoints through FastAPI Swagger:
 
----
-
-## 🖥️ Application Modules
-
-| Module                 | Purpose                              |
-| ---------------------- | ------------------------------------ |
-| 🌾 Crop Recommendation | Recommend suitable crops             |
-| 🦠 Disease Detection   | Detect possible plant diseases       |
-| 💧 Smart Irrigation    | Provide irrigation recommendations   |
-| 🌦️ Weather            | Agricultural weather information     |
-| 🤖 Farm Assistant      | Agriculture-focused AI chatbot       |
-| 📊 AI Insights         | Farming insights and recommendations |
-| 🚜 Farm Management     | Manage farm information              |
-| 📈 Dashboard           | Centralized farming dashboard        |
+**https://smartfarm-ai-p3md.onrender.com/docs**
 
 ---
 
-## 🔐 Environment Variables
+## 📸 Application Screenshots
 
-Create a `.env` file when required and add your environment-specific configuration.
+Explore the SmartFarm-AI interface and its major modules.
 
-Example:
+### 🌱 Landing Page
 
-```env
-# Add your API configuration here
-```
+![SmartFarm AI Landing Page](https://github.com/user-attachments/assets/c4873eb1-5912-4162-8a4a-a8214ae299e0)
 
-> Never upload your real `.env` file or API keys to GitHub.
+### 📊 Dashboard
 
-The repository includes `.env.example` as a safe configuration template.
+![SmartFarm AI Dashboard](https://github.com/user-attachments/assets/498b7f50-0ed5-4286-94ae-22336a015a75)
 
----
+### 🌾 Crop Recommendation
 
-## 📸 Screenshots
+![Crop Recommendation](https://github.com/user-attachments/assets/20dab7e9-faf5-40fa-a484-d09ad1ea0db5)
 
-### Landing Page
+### 🤖 AI Farm Assistant
 
-*<img width="1521" height="722" alt="image" src="https://github.com/user-attachments/assets/c4873eb1-5912-4162-8a4a-a8214ae299e0" />
-*
+![AI Farm Assistant](https://github.com/user-attachments/assets/e9914588-2529-4bc4-ad4f-62f2934861dd)
 
-### Dashboard
+### 💧 Smart Irrigation
 
-*<img width="1508" height="722" alt="image" src="https://github.com/user-attachments/assets/498b7f50-0ed5-4286-94ae-22336a015a75" />
-*
-
-### Crop Recommendation
-
-*<img width="1510" height="727" alt="image" src="https://github.com/user-attachments/assets/20dab7e9-faf5-40fa-a484-d09ad1ea0db5" />
-*
-
-### AI Farm Assistant
-
-*<img width="1508" height="722" alt="image" src="https://github.com/user-attachments/assets/e9914588-2529-4bc4-ad4f-62f2934861dd" />
-*
-
-### Smart Irrigation
-
-*<img width="1503" height="731" alt="image" src="https://github.com/user-attachments/assets/43a2d2f6-44e8-43a2-b989-9c3f9e5a8980" />
-*
+![Smart Irrigation](https://github.com/user-attachments/assets/43a2d2f6-44e8-43a2-b989-9c3f9e5a8980)
 
 ---
 
-## 🎯 Project Goals
+## 🎯 Project Objectives
 
 SmartFarm-AI aims to:
 
-* Make agricultural technology easier to access
-* Support data-driven farming decisions
-* Improve crop planning
-* Assist with irrigation management
-* Help identify plant diseases
-* Provide an accessible AI farming assistant
-* Demonstrate practical applications of AI and machine learning in agriculture
+- Make agricultural technology more accessible.
+- Support smarter and data-driven farming decisions.
+- Improve crop planning and selection.
+- Encourage efficient water management.
+- Assist in identifying potential plant diseases.
+- Make agricultural information easier to understand.
+- Provide multilingual AI-powered farming assistance.
+- Explore practical applications of AI and Machine Learning in agriculture.
 
 ---
 
-## 🔮 Future Improvements
+## 🔮 Future Roadmap
 
-* Real-time weather API integration
-* Advanced ML models for disease detection
-* More regional crop datasets
-* Multilingual AI farming assistant
-* Voice-based farming assistant
-* Satellite/remote-sensing integration
-* Farmer-specific recommendation history
-* Production cloud deployment
-* Mobile application
+The project will continue evolving with improvements such as:
+
+- More advanced crop recommendation models.
+- Improved plant disease detection accuracy.
+- Expanded regional agricultural datasets.
+- Enhanced AI Kisan Avatar interactions.
+- More regional language and dialect support.
+- Improved voice-based agricultural assistance.
+- Advanced satellite and remote-sensing integration.
+- Personalized farmer recommendation history.
+- Expanded real-time agricultural data integrations.
+- Mobile application development.
+
+---
+
+## 🔐 Security & Configuration
+
+- Keep API keys and credentials private.
+- Use environment variables for sensitive configuration.
+- Never commit `.env` files containing real credentials.
+- Follow secure configuration practices when deploying the application.
+- Validate user inputs before processing requests.
 
 ---
 
 ## 👨‍💻 Developer
 
-**Shikhar Tiwari**
+<p align="center">
+  <strong>Shikhar Tiwari</strong><br/>
+  Integrated BCA-MCA | Data Science<br/>
+  University of Allahabad
+</p>
 
-BCA-MCA Data Science
+<p align="center">
+  <a href="https://github.com/shikhartiwari1508">
+    <img src="https://img.shields.io/badge/GitHub-shikhartiwari1508-181717?style=for-the-badge&logo=github" />
+  </a>
+  <a href="https://shikhartiwari1508.github.io/Shikhar_Tiwari-Portfolio/">
+    <img src="https://img.shields.io/badge/Portfolio-Visit_My_Portfolio-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white" />
+  </a>
+</p>
 
-University of Allahabad
-
-### Connect
-
-* GitHub: [@shikhartiwari1508](https://github.com/shikhartiwari1508)
-* Portfolio: [Shikhar Tiwari Portfolio](https://shikhartiwari1508.github.io/Shikhar_Tiwari-Portfolio/)
-* Project link: [SmartFarm-AI](https://smartfarmai-amber.vercel.app/)
 ---
 
 ## 📄 License
 
-This project is currently available for educational and demonstration purposes.
+This project is currently intended for educational, research, and demonstration purposes.
 
 ---
 
-⭐ **If you find SmartFarm-AI interesting, consider giving the repository a star!**
+## ⭐ Support The Project
+
+If you find **SmartFarm-AI** interesting or useful:
+
+- ⭐ Give this repository a star.
+- 🍴 Fork the repository.
+- 🐛 Report bugs and suggest improvements.
+- 💡 Contribute ideas for smarter agriculture.
+
+<p align="center">
+  <strong>🌱 Smart Farming. Smarter Decisions. Better Agriculture.</strong>
+  <br/><br/>
+  <a href="https://smartfarmai-amber.vercel.app/">
+    <strong>🚀 Explore SmartFarm-AI</strong>
+  </a>
+</p>
