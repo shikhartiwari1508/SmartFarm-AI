@@ -417,15 +417,26 @@ Explore the SmartFarm-AI interface and its major modules.
 
 ### 🌾 Crop Recommendation
 
-![Crop Recommendation](https://github.com/user-attachments/assets/20dab7e9-faf5-40fa-a484-d09ad1ea0db5)
+![Crop Recommendation](https://github.com/user-attachments/assets/e30ee182-74ff-4dc2-bf00-33be833243af)
 
 ### 🤖 AI Farm Assistant
 
-![AI Farm Assistant](https://github.com/user-attachments/assets/e9914588-2529-4bc4-ad4f-62f2934861dd)
+![AI Farm Assistant](https://github.com/user-attachments/assets/ad4ef7a2-515a-4466-8c29-8a409a9abb4d)
 
 ### 💧 Smart Irrigation
 
-![Smart Irrigation](https://github.com/user-attachments/assets/43a2d2f6-44e8-43a2-b989-9c3f9e5a8980)
+![Smart Irrigation](https://github.com/user-attachments/assets/1c9be299-d684-4116-8aa3-6a6fa1c621a8)
+
+
+### 📈 Mandi Prices
+
+![Mandi Prices](https://github.com/user-attachments/assets/def1b874-3d6d-4f05-b050-ed3d6e98e63f)
+
+
+### 🧑‍🌾 AI Kishan Avatar
+
+![AI Kishan Avatar](https://github.com/user-attachments/assets/bfd0d638-aab5-4501-abe8-87e8426b481c)
+
 
 ---
 
