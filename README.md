@@ -485,7 +485,7 @@ The project will continue evolving with improvements such as:
 ## 👨‍💻 Developer
 
 <p align="center">
-  <strong>Shikhar Tiwari</strong><br/>
+  <strong>Mr. Shikhar Tiwari</strong><br/>
   Integrated BCA-MCA | Data Science<br/>
   University of Allahabad
 </p>
